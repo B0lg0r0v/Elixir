@@ -237,7 +237,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for ASN lookup.
-    #print(os.getcwd()) 
     try:
                 
         if args.domain is not None:
