@@ -7,9 +7,8 @@
 Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attack Surface Mapping tool. It will try to give you a maximum amount of informations out of a given domain name. This project is under development and changes will be made frequently.<br> 
 <br>
 <p align="center">
-  <img width="750" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/b9d25424-11d7-4424-a615-cf4b8be8d483">
+  <img width="1100" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/db39676b-9826-4be6-8c10-e2a6782fd259">
 </p>
-
 
 ## Usage
 <p align="center">
