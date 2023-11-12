@@ -227,7 +227,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--all', help='Find all DNS Records.', action='store_true')
     parser.add_argument('-r', '--record', help='Search for a specific DNS Record. You can also search for multiple records.', nargs='+')
     parser.add_argument('-asn', '--asn', help='Shows you the origin ASN and the BGP prefix of your target.', action='store_true')
-    parser.add_argument('-rasn', '--rasn', help='Shows you the BGP prefixes using an ASN.', nargs='+')
+    parser.add_argument('-rasn', '--rasn', help='Reverse ASN Lookup. Shows you the BGP prefixes using an ASN.', nargs='+')
     parser.add_argument('-z', '--zone-transfer', help='Attempts a zone transfer attack.', action='store_true')
     parser.add_argument('-i', '--ip-address', help='Reverse DNS Lookup. You can also put multiple IP addresses.', nargs='+')
     parser.add_argument('-sd', '--subdomains', help='Basic subdomain enumeration.', action='store_true')
@@ -237,7 +237,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for ASN lookup.
-    
+
     try:
                 
         if args.domain is not None:
