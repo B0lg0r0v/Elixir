@@ -7,8 +7,7 @@ import threading
 import nmap
 import requests
 from multiprocessing import Process
-
-
+import pyasn
 
 class bcolors:
     HEADER = '\033[95m'
@@ -26,6 +25,10 @@ def list_to_string(string):
     temp = ''.join(string)
     return temp    
 
+def stringToList(string):
+    list_temp = []
+    for x in string:
+        list_temp.extend(x)
 
 def findAllDnsRecords(userInput):
     dnsRecordTypes = ['A', 'AAAA', 'NS', 'CNAME', 'TXT', 'SOA', 'PTR', 'MX', 'SRV']
@@ -127,12 +130,13 @@ def mapDnsRecords(userInput, depth=0):
                 for answers in resolve:
                     server.append(f'{bcolors.HEADER}{indent}| {bcolors.OKCYAN}{bcolors.BOLD} {dnsRecords} ----->  ' + answers.to_text() + f'{bcolors.ENDC}')
                     if dnsRecords == 'A':
-                        server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD} ----->  ' + f'{geolocation(answers.to_text())}{bcolors.ENDC}')
+                        server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD} ----->  ' + f'{geolocation(answers.to_text())}{bcolors.OKBLUE} ----->  {bcolors.UNDERLINE}Origin ASN:{bcolors.ENDC} {bcolors.BOLD}{bcolors.OKBLUE}{asndb.lookup(answers.to_text())[0]}{bcolors.ENDC}, {bcolors.BOLD}{bcolors.OKBLUE}{bcolors.UNDERLINE}BGP Prefix:{bcolors.ENDC} {bcolors.BOLD}{bcolors.OKBLUE}{asndb.lookup(answers.to_text())[1]} {bcolors.ENDC}')
                     if dnsRecords == 'MX':
                         mx = answers.to_text().split(" ")[1]
                         mxIP = dns.resolver.resolve(mx, 'A')
+                        server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD} ----->  {bcolors.ENDC}')
                         for u in mxIP:
-                            server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD} ----->  ' + f'{u.to_text()} {bcolors.ENDC}')
+                            server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD}{u.to_text()} | {bcolors.ENDC}')
                     server.append('\n')
                 else:
                     pass
@@ -186,6 +190,22 @@ def serviceDetection(domain):
     except KeyboardInterrupt:
         print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
 
+def asnLookup(domain):
+    print(f'\n{bcolors.WARNING}[+] ASN Lookup for {domain}...{bcolors.ENDC}')
+    response = dns.resolver.resolve(domain, 'A')
+    for ips in response:
+        asn = asndb.lookup(str(ips))
+        return f'{bcolors.OKGREEN}{bcolors.BOLD}Origin AS: {asn[0]}, BGP Prefix {asn[1]}{bcolors.ENDC}\n'
+    
+def reverseAsnLookup(asn):
+    print(f'\n{bcolors.WARNING}[+] Reverse ASN Lookup for {asn}...{bcolors.ENDC}')
+    values = []
+    for x in asn:
+        response = asndb.get_as_prefixes(x)
+        for u in response:
+            print(f'{bcolors.OKGREEN}{bcolors.BOLD}{u}{bcolors.ENDC}')
+
+    return '\n'
 
 if __name__ == '__main__':
 
@@ -207,11 +227,13 @@ if __name__ == '__main__':
         
     
     parser = ArgumentParser()
-    parser.add_argument('-v', '--version', action='version', version='V0.1')
+    parser.add_argument('-v', '--version', action='version', version='V0.1-alpha')
     parser.add_argument('-d', '--domain', help='Target Domain to search for.')
     parser.add_argument('-a', '--all', help='Find all DNS Records.', action='store_true')
-    parser.add_argument('-r', '--record', help='Search for a specific DNS Record.', nargs='+')
-    parser.add_argument('-z', '--zone-transfer', help='Attemps a zone transfer attack.', action='store_true')
+    parser.add_argument('-r', '--record', help='Search for a specific DNS Record. You can also search for multiple records.', nargs='+')
+    parser.add_argument('-asn', '--asn', help='Shows you the origin ASN and the BGP prefix of your target.', action='store_true')
+    parser.add_argument('-rasn', '--rasn', help='Shows you the BGP prefixes using an ASN.', nargs='+')
+    parser.add_argument('-z', '--zone-transfer', help='Attempts a zone transfer attack.', action='store_true')
     parser.add_argument('-i', '--ip-address', help='Reverse DNS Lookup. You can also put multiple IP addresses.', nargs='+')
     parser.add_argument('-sd', '--subdomains', help='Basic subdomain enumeration.', action='store_true')
     parser.add_argument('-m', '--map', help='Creates a visual representation of the targets infrastructure.', action='store_true')
@@ -219,7 +241,8 @@ if __name__ == '__main__':
     parser.epilog = 'Example: python3 dns.py -d root.security -r TXT A AAAA -z'
 
     args = parser.parse_args()
-
+    asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for ASN lookup.
+    #print(os.getcwd()) 
     try:
                 
         if args.domain is not None:
@@ -249,29 +272,39 @@ if __name__ == '__main__':
                 print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
             except dns.resolver.NoNameservers:
                 pass
-        elif args.subdomains is None or args.domain is None:
+        elif args.subdomains and args.domain is None:
             parser.error('-d / --domain is required.')
             
         if args.map and args.domain is not None:
             print(mapDnsRecords(args.domain))
-        elif args.map is None or args.domain is None:
+        elif args.map and args.domain is None:
             parser.error('-d / --domain is required.')
 
         if args.scanning and args.domain is not None:
             p1 = Process(target=serviceDetection(args.domain)) #Trying different methods for optimization. This one is using the Multiprocessing library.
             p1.start()    
-        elif args.scanning is None or args.domain is None:
+        elif args.scanning and args.domain is None:
             parser.error('-d / --domain is required.')
+        
+        if args.asn and args.domain is not None:
+            print(asnLookup(args.domain))
+        elif args.asn and args.domain is None:
+               parser.error('-d / --domain is required.')
+               
         
         #No need for -d / --domain
 
         if args.ip_address and args.domain is None:
             print(reverseLookup(args.ip_address))
 
+        if args.rasn and args.domain is None:
+            print(reverseAsnLookup(args.rasn))
+        
     except ValueError:
         print('Please enter a valid value.')
     
     except dns.exception.SyntaxError:
         print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+
 
 
