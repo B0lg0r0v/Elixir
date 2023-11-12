@@ -25,11 +25,6 @@ def list_to_string(string):
     temp = ''.join(string)
     return temp    
 
-def stringToList(string):
-    list_temp = []
-    for x in string:
-        list_temp.extend(x)
-
 def findAllDnsRecords(userInput):
     dnsRecordTypes = ['A', 'AAAA', 'NS', 'CNAME', 'TXT', 'SOA', 'PTR', 'MX', 'SRV']
     server = []
