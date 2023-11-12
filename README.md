@@ -12,12 +12,10 @@ Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attac
 
 ## Usage
 <p align="center">
-  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/13b43e50-45e3-4764-8413-15b72705000d">
+  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/eed6bb79-a8f1-4f7d-b381-c2ab0d333835">
 </p>
 <br>
 The "-d" argument is required for most of Elixir's functions. Example of usage:<br><br>
-
-
 
 ```
 python3 elixir.py -d root.security -a
