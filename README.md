@@ -1,22 +1,25 @@
 # Elixir
 <p align="center">
-  <img src='https://github.com/B0lg0r0v/elixir/assets/115954804/f42b8240-de8f-47cc-9975-b6abcb7eac3c' width='400'>
+  <img src='https://github.com/B0lg0r0v/elixir/assets/115954804/c71ac078-79cb-44be-9390-633d8ae4384c' width='400'>
 </p>
-
 
 ## Description
 Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attack Surface Mapping tool. It will try to give you a maximum amount of informations out of a given domain name. This project is under development and changes will be made frequently.<br> 
-<br><br>
+<br>
 <p align="center">
-  <img width="750" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/cdd448cc-66a6-45ed-9fa2-ab8fe4fced2c">
+  <img width="750" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/555334cc-8229-417c-a709-d03e0d8edf1d">
 </p>
+
+
 
 ## Usage
 <p align="center">
-  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/d2d18352-8117-4f27-911e-1e3f0c5299a5">
+  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/13b43e50-45e3-4764-8413-15b72705000d">
 </p>
 <br>
 The "-d" argument is required for most of Elixir's functions. Example of usage:<br><br>
+
+
 
 ```
 python3 elixir.py -d root.security -a
@@ -26,13 +29,13 @@ python3 elixir.py -d root.security -a
 
 **Subdomain Enumeration**:<br>
 <p align="center">
-  <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/600cd6bd-c64d-4178-bcce-0b9f6dfb0c81">
+  <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/f21e0ecd-424a-4218-889c-55f8a9e637af">
 </p>
 <br><br>
 
 **NMAP integration**:<br><br>
 <p align="center">
-  <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/54cb88f6-b462-43d5-96f8-9253765c1629">
+  <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/48c4fe1e-479f-4973-b9b8-1fd74f09d9df">
 </p>
 
 ## Installation
