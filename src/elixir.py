@@ -143,10 +143,11 @@ def mapDnsRecords(userInput, depth=0):
     except dns.resolver.NoResolverConfiguration:
         print(f'{bcolors.FAIL}{bcolors.BOLD}\nNo Name Server given or no internet connection.{bcolors.ENDC}')
     
-    print("\n" + "-"*50 + "\n")
+    #print("\n" + "-"*50 + "\n")
     print(f'{bcolors.HEADER}{indent}┌── {userInput}{bcolors.ENDC}') 
     print(list_to_string(server))
-    return("\n" + "-"*50 + "\n")
+    #return("\n" + "-"*50 + "\n")
+    return ("")
 
 def geolocation(ipAddress):
 
