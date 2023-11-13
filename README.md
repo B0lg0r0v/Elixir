@@ -22,14 +22,23 @@ python3 elixir.py -d root.security -a
 ```
 
 ## Features
+Here's a quick overview of Elixir's features:
+  - Attack Surface Mapping
+  - DNS Zone Transfer
+  - ASN Mapping incl. BGP Prefix
+  - Subdomain Enumeration
+  - NMAP Integration for portscanning & service enumeration (from port 15 up to 450)
+<br>
 
-**Subdomain Enumeration**:<br>
+*Examples*:
+<br><br>
+Subdomain Enumeration:<br>
 <p align="center">
   <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/f21e0ecd-424a-4218-889c-55f8a9e637af">
 </p>
 <br><br>
 
-**NMAP integration**:<br><br>
+NMAP integration:<br><br>
 <p align="center">
   <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/48c4fe1e-479f-4973-b9b8-1fd74f09d9df">
 </p>
