@@ -10,6 +10,7 @@
   * [Usage](#usage)
   * [Features](#features)
   * [Installation](#installation)
+  * [To-Do](#to-do)
   * [Notes](#notes)
   * [Disclaimer](#disclaimer)
 
@@ -68,6 +69,12 @@ python3 elixir.py -asn-db
   <img width="550" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/e5b4ea03-c827-4a8e-8bfe-777ec08d625f">
 </p>
 
+## To-Do
+
+- [x] Create a ASN database function in order to always have the latest ASNs.
+- [ ] Create an output function..
+- [ ] Optimize the subdomain enumeraion function.
+- [ ] Enhance the NMAP integration with possibility of giving a custom NMAP command as an argument.
 
 ## Notes
 Credits for the Pyasn module and scripts goes to Hadi Asghar (https://hadiasghari.com) and Arman Noroozian (https://anoroozian.nl/).
