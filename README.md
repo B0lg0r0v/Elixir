@@ -12,13 +12,13 @@ Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attac
 
 ## Usage
 <p align="center">
-  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/eed6bb79-a8f1-4f7d-b381-c2ab0d333835">
+  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/a89525e5-9111-419f-acec-39505a056b83">
 </p>
 <br>
-The "-d" argument is required for most of Elixir's functions. Example of usage:<br><br>
+The "-d" argument is required for most of Elixir's functions.<br><br>Example of usage:<br><br>
 
 ```
-python3 elixir.py -d root.security -a
+python3 elixir.py -d root.security -r A TXT MX SOA -m -z
 ```
 
 ## Features
@@ -48,9 +48,21 @@ NMAP integration:<br><br>
 ```
 pip3 install -r requirements.txt
 ```
-In order to use the scanning functionality, which contains a NMAP integration, you need to have NMAP installed on your system.
+In order to use the scanning functionality, which contains a NMAP integration, you need to have NMAP installed on your system.<br><br>
+Be careful to build the ASN Database in order to use the ASN functionalities:
+
+```
+python3 elixir.py -asn-db
+```
+<p align="center">
+  <img width="550" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/e5b4ea03-c827-4a8e-8bfe-777ec08d625f">
+</p>
+
+
+## Notes
+Credits for the Pyasn module and scripts goes to Hadi Asghar (https://hadiasghari.com) and Arman Noroozian (https://anoroozian.nl/).
 
 ## Disclaimer
 
-This tool is primarly created for me as a project to enhance my coding skills and start creating some hacking tools. It is not considered to be the most efficient tool out there.<br>
+This tool is primarly created for me as a project to enhance my coding skills and start creating some hacking tools. It is not considered to be the most efficient tool out there.<br><br>
 Also, you are responsible for any trouble you may cause by using this tool.
