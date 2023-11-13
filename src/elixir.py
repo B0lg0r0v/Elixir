@@ -8,6 +8,7 @@ import nmap
 import requests
 from multiprocessing import Process
 import pyasn
+from asn_build.build_asn_db import buildASNdb
 
 class bcolors:
     HEADER = '\033[95m'
@@ -19,7 +20,6 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-
 
 def list_to_string(string):
     temp = ''.join(string)
@@ -38,7 +38,10 @@ def findAllDnsRecords(userInput):
             except dns.resolver.NoAnswer:
                 server.append(f'{bcolors.FAIL}{bcolors.BOLD}{dnsRecords}: Record not existing{bcolors.ENDC}\n')
     except dns.resolver.NXDOMAIN:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not exist.{bcolors.ENDC}\n')
+        print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not exist.{bcolors.ENDC}\n')
+    except dns.resolver.NoResolverConfiguration:
+        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+
     return(list_to_string(server))
 
 
@@ -59,6 +62,8 @@ def zoneTransfer(userInput):
                     continue
     except dns.resolver.NXDOMAIN:
         print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not existing.{bcolors.ENDC}')
+    except dns.resolver.NoResolverConfiguration:
+        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
     return(list_to_string(hosts))
 
 
@@ -77,6 +82,8 @@ def findSpecificRecord(userInput, record):
         print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not existing.{bcolors.ENDC}')
     except dns.rdatatype.UnknownRdatatype:
         print(f'{bcolors.FAIL}{bcolors.BOLD}Error in your record statement.{bcolors.ENDC}')
+    except dns.resolver.NoResolverConfiguration:
+        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
     return(list_to_string(response))
 
 
@@ -112,12 +119,19 @@ def subdomainEnumeration(targetDomain):
             pass
         except dns.resolver.NoAnswer:
             pass
+        
 
 def mapDnsRecords(userInput, depth=0):
     dnsRecordTypes = ['A', 'AAAA', 'NS', 'CNAME', 'TXT', 'SOA', 'PTR', 'MX', 'SRV']
     server = []
     indent = '    ' * depth
     print(f'\n{bcolors.WARNING}[+] Mapping the Attack Surface...{bcolors.ENDC}')
+
+    if os.path.exists('../lists/asn_db.txt'):
+        asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt')
+    else:
+        print(f'{bcolors.FAIL}{bcolors.BOLD}ASN DB not existing. Check "-h" argument.{bcolors.ENDC}')
+
     try:
         for dnsRecords in dnsRecordTypes:
             try:
@@ -141,7 +155,7 @@ def mapDnsRecords(userInput, depth=0):
     except dns.resolver.NXDOMAIN:
             pass
     except dns.resolver.NoResolverConfiguration:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}\nNo Name Server given or no internet connection.{bcolors.ENDC}')
+        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
     
     #print("\n" + "-"*50 + "\n")
     print(f'{bcolors.HEADER}{indent}┌── {userInput}{bcolors.ENDC}') 
@@ -174,7 +188,7 @@ def serviceDetection(domain):
        
     try:
         for ipAddress in temp:
-            print(f'\n ⮑{indent}{bcolors.OKBLUE}{bcolors.BOLD}[+] Scanning ports and services for IP {bcolors.UNDERLINE}{ipAddress}{bcolors.ENDC}{bcolors.OKBLUE}...{bcolors.ENDC}')
+            print(f'\n {bcolors.BOLD}↳{bcolors.ENDC}{indent}{bcolors.OKBLUE}{bcolors.BOLD}[+] Scanning ports and services for IP {bcolors.UNDERLINE}{ipAddress}{bcolors.ENDC}{bcolors.OKBLUE}...{bcolors.ENDC}')
             for x in range(15, 450+1):
                 res = scanner.scan(ipAddress, str(x))
                 res = res['scan'][ipAddress]['tcp'][x]['state']
@@ -186,12 +200,34 @@ def serviceDetection(domain):
     except KeyboardInterrupt:
         print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
 
+
+def initAsnDB():
+    print(f'{bcolors.WARNING}[+] Checking if ASN Database already exists...{bcolors.ENDC}')
+    if os.path.exists('../lists/asn_db.txt'):
+        response = input(f'{bcolors.WARNING}{bcolors.BOLD}The ASN Database already exists. Do you want to update it? [y] or [n]: {bcolors.ENDC}')
+        if response == 'y'.lower():
+            buildASNdb()
+            print(f'{bcolors.OKGREEN}{bcolors.BOLD}Building Database complete.{bcolors.ENDC}')
+        elif response == 'n'.lower():
+            print(f'{bcolors.WARNING}{bcolors.BOLD}ASN DB build canceled.{bcolors.ENDC}')
+            exit()
+    else:
+        print(f'{bcolors.OKGREEN}{bcolors.BOLD}Building Database...{bcolors.ENDC}')
+        buildASNdb()
+
+    return ""
+
 def asnLookup(domain):
     print(f'\n{bcolors.WARNING}[+] ASN Lookup for {domain}...{bcolors.ENDC}')
-    response = dns.resolver.resolve(domain, 'A')
-    for ips in response:
-        asn = asndb.lookup(str(ips))
-        return f'{bcolors.OKGREEN}{bcolors.BOLD}Origin AS: {asn[0]}, BGP Prefix {asn[1]}{bcolors.ENDC}\n'
+    try:
+        response = dns.resolver.resolve(domain, 'A')
+        for ips in response:
+            asn = asndb.lookup(str(ips))
+            return f'{bcolors.OKGREEN}{bcolors.BOLD}Origin AS: {asn[0]}, BGP Prefix {asn[1]}{bcolors.ENDC}\n'
+    except dns.resolver.NoResolverConfiguration:
+        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+    
+    return ""
     
 def reverseAsnLookup(asn):
     print(f'\n{bcolors.WARNING}[+] Reverse ASN Lookup for {asn}...{bcolors.ENDC}')
@@ -229,8 +265,9 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--domain', help='Target Domain to search for.')
     parser.add_argument('-a', '--all', help='Find all DNS Records.', action='store_true')
     parser.add_argument('-r', '--record', help='Search for a specific DNS Record. You can also search for multiple records.', nargs='+')
-    parser.add_argument('-asn', '--asn', help='Shows you the origin ASN and the BGP prefix of your target.', action='store_true')
-    parser.add_argument('-rasn', '--rasn', help='Reverse ASN Lookup. Shows you the BGP prefixes using an ASN.', nargs='+')
+    parser.add_argument('-asn-db', '--asn-build', help='Downloades and creates a Database of ASNs in order to use the ASN Lookup function offline.', action='store_true')
+    parser.add_argument('-asn', '--asn', help='Shows you the origin ASN and the BGP prefix of your target. Requires the ASN Database first.', action='store_true')
+    parser.add_argument('-rasn', '--rasn', help='Reverse ASN Lookup. Shows you the BGP prefixes using an ASN. Requires the ASN Database first.', nargs='+')
     parser.add_argument('-z', '--zone-transfer', help='Attempts a zone transfer attack.', action='store_true')
     parser.add_argument('-i', '--ip-address', help='Reverse DNS Lookup. You can also put multiple IP addresses.', nargs='+')
     parser.add_argument('-sd', '--subdomains', help='Basic subdomain enumeration.', action='store_true')
@@ -239,7 +276,6 @@ if __name__ == '__main__':
     parser.epilog = 'Example: python3 dns.py -d root.security -r TXT A AAAA -z'
 
     args = parser.parse_args()
-    asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for ASN lookup.
 
     try:
                 
@@ -270,6 +306,8 @@ if __name__ == '__main__':
                 print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
             except dns.resolver.NoNameservers:
                 pass
+            except dns.resolver.NoResolverConfiguration:
+                print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
         elif args.subdomains and args.domain is None:
             parser.error('-d / --domain is required.')
             
@@ -279,15 +317,31 @@ if __name__ == '__main__':
             parser.error('-d / --domain is required.')
 
         if args.scanning and args.domain is not None:
-            p1 = Process(target=serviceDetection(args.domain)) #Trying different methods for optimization. This one is using the Multiprocessing library.
-            p1.start()    
+            try:
+                p1 = Process(target=serviceDetection(args.domain)) #Trying different methods for optimization. This one is using the Multiprocessing library.
+                p1.start()
+            except dns.resolver.NoResolverConfiguration:
+                print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')    
         elif args.scanning and args.domain is None:
             parser.error('-d / --domain is required.')
         
         if args.asn and args.domain is not None:
-            print(asnLookup(args.domain))
+            if os.path.exists('../lists/asn_db.txt'): 
+                asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for ASN lookup.
+                print(asnLookup(args.domain))
+            else:
+                print(f'{bcolors.WARNING}{bcolors.BOLD}Database could not be initialized.{bcolors.ENDC}')
+                asnAnswer = input(f'{bcolors.WARNING}{bcolors.BOLD}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {bcolors.ENDC}')
+                if asnAnswer == 'y'.lower():
+                    initAsnDB()
+                    asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for ASN lookup.
+                    print(asnLookup(args.domain))
+                elif asnAnswer == 'n'.lower():
+                    print(f'{bcolors.FAIL}{bcolors.BOLD}Canceled.{bcolors.ENDC}')
+                    exit()
+    
         elif args.asn and args.domain is None:
-               parser.error('-d / --domain is required.')
+            parser.error('-d / --domain is required.')
                
         
         #No need for -d / --domain
@@ -296,7 +350,23 @@ if __name__ == '__main__':
             print(reverseLookup(args.ip_address))
 
         if args.rasn and args.domain is None:
-            print(reverseAsnLookup(args.rasn))
+            if os.path.exists('../lists/asn_db.txt'): 
+                asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for rASN lookup.
+                print(reverseAsnLookup(args.rasn))
+            else:
+                print(f'{bcolors.WARNING}{bcolors.BOLD}Database could not be initialized.{bcolors.ENDC}')
+                rasnAnswer = input(f'{bcolors.WARNING}{bcolors.BOLD}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {bcolors.ENDC}')
+                if rasnAnswer == 'y'.lower():
+                    initAsnDB()
+                    asndb = pyasn.pyasn(f'{os.getcwd()}/../lists/asn_db.txt') #Initializing the Database for rASN lookup.
+                    print(reverseAsnLookup(args.rasn))
+                elif rasnAnswer == 'n'.lower():
+                    print(f'{bcolors.FAIL}{bcolors.BOLD}Canceled.{bcolors.ENDC}')
+                    exit()
+
+        if args.asn_build:
+            print(initAsnDB())
+            
         
     except ValueError:
         print('Please enter a valid value.')
@@ -306,3 +376,4 @@ if __name__ == '__main__':
 
 
 
+    
