@@ -208,7 +208,6 @@ def reverseAsnLookup(asn):
 if __name__ == '__main__':
 
     print("\n")
-    print("*"*40)
     print(r"""
 
     _________      _     
@@ -221,7 +220,7 @@ if __name__ == '__main__':
     Author: B0lg0r0v
     https://root.security
     """)
-    print("*"*40+"\n")
+    print("\n")
         
     
     parser = ArgumentParser()
