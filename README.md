@@ -72,8 +72,8 @@ python3 elixir.py -asn-db
 ## To-Do
 
 - [x] Create an ASN database function in order to always have the latest ASNs.
-- [ ] Create an output function..
-- [ ] Optimize the subdomain enumeraion function.
+- [ ] Create an output function.
+- [ ] Optimize the subdomain enumeration function.
 - [ ] Enhance the NMAP integration with possibility of giving a custom NMAP command as an argument.
 
 ## Notes
