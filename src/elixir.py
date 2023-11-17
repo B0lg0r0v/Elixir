@@ -190,7 +190,6 @@ def mapDnsRecords(userInput, depth=0):
     else:
         print(f'{bcolors.FAIL}{bcolors.BOLD}ASN DB not existing. Check "-h" argument.{bcolors.ENDC}')
 
-
     try:
         for dnsRecords in dnsRecordTypes:
             try:
@@ -212,7 +211,7 @@ def mapDnsRecords(userInput, depth=0):
                 pass
 
     except dns.resolver.NXDOMAIN:
-            pass
+        pass
     except dns.resolver.NoResolverConfiguration:
         print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
     except KeyboardInterrupt:
@@ -231,7 +230,7 @@ def geolocation(ipAddress, domain):
     
     if ipSanitazation.search(ipAddress):
         
-        header = {f'User-Agent': 'keycdn-tools:https://{domain}'}
+        header = {f'User-Agent': f'keycdn-tools:https://{domain}'}
         sendData = requests.get(f'https://tools.keycdn.com/geo.json?host={ipAddress}', headers=header).json()
 
         data = {
