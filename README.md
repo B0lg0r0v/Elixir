@@ -22,8 +22,13 @@ Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attac
 </p>
 
 ## Usage
+
+```
+python3 elixir.py -h
+```
+
 <p align="center">
-  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/a89525e5-9111-419f-acec-39505a056b83">
+  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/f79ce6dd-004b-4887-bef9-f4d439fad215">
 </p>
 <br>
 The "-d" argument is required for most of Elixir's functions.<br><br>Example of usage:<br><br>
@@ -45,13 +50,13 @@ Here's a quick overview of Elixir's features:
 <br><br>
 Subdomain Enumeration:<br>
 <p align="center">
-  <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/f21e0ecd-424a-4218-889c-55f8a9e637af">
+  <img width="550" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/8721069b-0e2b-4d1b-9a0a-392efc419f63">
 </p>
 <br><br>
 
 NMAP integration:<br><br>
 <p align="center">
-  <img width="550" alt="image" src="https://github.com/B0lg0r0v/elixir/assets/115954804/48c4fe1e-479f-4973-b9b8-1fd74f09d9df">
+  <img width="550" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/3303d861-0e7a-426f-8b13-54429e0d8a8a">
 </p>
 
 ## Installation
@@ -72,8 +77,8 @@ python3 elixir.py -asn-db
 ## To-Do
 
 - [x] Create an ASN database function in order to always have the latest ASNs.
-- [ ] Create an output function.
-- [ ] Optimize the subdomain enumeration function.
+- [x] Create an output function.
+- [x] Optimize the subdomain enumeration function.
 - [ ] Enhance the NMAP integration with possibility of giving a custom NMAP command as an argument.
 
 ## Notes
