@@ -6,11 +6,11 @@ from argparse import ArgumentParser
 import os
 import nmap
 import requests
-from multiprocessing import Process
 import pyasn
 from asn_build.build_asn_db import buildASNdb
 import re
 import time
+import concurrent.futures
 
 class bcolors:
     HEADER = '\033[95m'
@@ -149,14 +149,13 @@ def subdomainEnumeration(targetDomain):
     print(f'\n{bcolors.WARNING}[+] Subdomain Enumeration started...{bcolors.ENDC}')
     list = []
     newList = []
-    dupList = []
     listOutput = []
 
     with open(f'{os.getcwd()}/../lists/subdomains.txt', 'r') as file:
         name = file.read()
         subDomains = name.splitlines()
-    
-    for subdomains in subDomains:
+
+    def enumeration(subdomains):
         try:
             ipValue = dns.resolver.resolve(f'{subdomains.lower()}.{targetDomain}', 'A')
             if ipValue:
@@ -165,14 +164,18 @@ def subdomainEnumeration(targetDomain):
                     if x not in newList: #We check for duplicates
                         newList.append(x)
                         print(f'{bcolors.OKGREEN}{bcolors.BOLD}https://{subdomains.lower()}.{targetDomain}{bcolors.ENDC}')
-                        time.sleep(.01)
+                        #time.sleep(.01)
                     else:
-                        dupList.append(x) #Append the duplicates here.
-        except dns.resolver.NXDOMAIN:
+                        pass
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.name.EmptyLabel):
             pass
-        except dns.resolver.NoAnswer:
-            pass
-        
+        except KeyboardInterrupt:
+            print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+            executor.shutdown()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(enumeration, subDomains)
+
     if outputBool:   
         listOutput.insert(0, '\n#----------------#\n')
         listOutput.extend('#----------------#\n')
@@ -241,7 +244,7 @@ def geolocation(ipAddress, domain):
             'isp':sendData.get('data', {}).get('geo', {}).get('isp')
             
         }
-
+  
         res = 'City: {city}, Region: {region}, Country: {country}, ISP: {isp}'.format(**data)         
         return res
     
@@ -258,26 +261,28 @@ def serviceDetection(domain):
     serviceOutput = []
 
     for answers in response:
-        temp.append(answers.to_text()) # If we got multiple IP addresses, we go through each one for a port & service scan.
-       
-    try:
-        for ipAddress in temp:
-            print(f'\n {bcolors.BOLD}↳{bcolors.ENDC}{indent}{bcolors.OKBLUE}{bcolors.BOLD}[+] Scanning ports and services for IP {bcolors.UNDERLINE}{ipAddress}{bcolors.ENDC}{bcolors.OKBLUE}...{bcolors.ENDC}')
-            for x in range(15, 450+1):
-                res = scanner.scan(ipAddress, str(x))
-                res = res['scan'][ipAddress]['tcp'][x]['state']
+        temp.append(answers.to_text())  # Use str(answers.address) to get the IP address as a string
 
-                if res == 'open':
-                    results = scanner.scan(ipAddress, arguments=f'-sV -sC -T4 -p' +str(x))
-                    service = (results['scan'][ipAddress]['tcp'][x]['product'])
-                    print(f'{indent}  {bcolors.OKGREEN}{bcolors.BOLD}Port {x} is open and is running "{service}".{bcolors.ENDC}')
+    try:
+        for ip in temp:
+            print(f'\n {bcolors.BOLD}↳{bcolors.ENDC}{indent}{bcolors.OKBLUE}{bcolors.BOLD}[+] Scanning ports and services for IP {bcolors.UNDERLINE}{ip}{bcolors.ENDC}{bcolors.OKBLUE}...{bcolors.ENDC}')
+            serviceOutput.append(f'Scanning ports and services for {ip}\n')
+            for x in range(15, 30+1):
+                res = scanner.scan(ip, str(x))
+                state = res['scan'][ip]['tcp'][x]['state']
+
+                if state == 'open':
+                    results = scanner.scan(ip, arguments=f'-sV -sC -T4 -p {x}')
+                    service = results['scan'][ip]['tcp'][x]['product']      
+                    print(f'{indent}  {bcolors.OKGREEN}{bcolors.BOLD}Port {x} is open and is running "{service}".{bcolors.ENDC}')
+                    serviceOutput.append(f'{indent}  Port {x} is open and is running "{service}".\n')
+
     except KeyboardInterrupt:
         print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
     except KeyError:
         print(f'{bcolors.FAIL}{bcolors.BOLD}\nError scanning the Host.{bcolors.ENDC}')
 
-    if outputBool:
-        serviceOutput = service   
+    if outputBool:   
         serviceOutput.insert(0, '\n#----------------#\n')
         serviceOutput.extend('#----------------#\n')
         outputFunction(list_to_string(serviceOutput))
@@ -299,7 +304,7 @@ def initAsnDB():
 
     return ""
 
-
+ 
 def asnLookup(domain):
     print(f'\n{bcolors.WARNING}[+] ASN Lookup for {domain}...{bcolors.ENDC}')
     asnOutput = []
@@ -442,28 +447,25 @@ if __name__ == '__main__':
         if args.subdomains and args.domain is not None:
             if domainSanitazation.search(args.domain):
                 try:
-                    subdProcess = Process(target=subdomainEnumeration, args=(args.domain,))
-                    subdProcess.start()
-                    processList.append(subdProcess)
-
-                    for subdProcess in processList: #Close Process(es)
-                        subdProcess.join()
-
-                    processList.clear()
+                    #start = time.perf_counter()
+                    subdomainEnumeration(args.domain)
+                    #stop = time.perf_counter()
+                    #print(f'Task completed in {round(stop - start, 2)} seconds.')
+       
                 except KeyboardInterrupt:
-                    for subdProcess in processList:
-                        subdProcess.terminate()
+                    print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
 
-                    processList.clear()
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')    
                 except dns.resolver.NoNameservers:
                     pass
+                
                 except dns.resolver.NoResolverConfiguration:
                     print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+            
             else:
                 print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}') 
+        
         elif args.subdomains and args.domain is None:
-            parser.error('-d / --domain is required.')
+            parser.error('-d / --domain is required.') 
 
         #---------------------------------------------------------# 
 
@@ -481,30 +483,21 @@ if __name__ == '__main__':
         if args.scanning and args.domain is not None:
             if domainSanitazation.search(args.domain):
                 try:
-                    scanProcess = Process(target=serviceDetection, args=(args.domain,)) 
-                    scanProcess.start()
-                    processList.append(scanProcess)
-
-                    for scanProcess in processList: #Close Process(es)
-                        scanProcess.join()
-
-                    processList.clear()
-            
+                    #start = time.perf_counter()
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        executor.submit(serviceDetection, args.domain)
+                    #stop = time.perf_counter()
+                    #print(f'Task completed in {round(stop - start, 2)} seconds.')
                 except dns.resolver.NoResolverConfiguration:
                     print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}') 
                 
                 except KeyboardInterrupt:
-                    for scanProcess in processList:
-                        scanProcess.terminate()
-                    
-                    processList.clear()
-
                     print(f'{bcolors.FAIL}{bcolors.BOLD}\nScanning canceled.{bcolors.ENDC}')
             else:
                  print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
         elif args.scanning and args.domain is None:
             parser.error('-d / --domain is required.')
-        
+
         #---------------------------------------------------------#
 
         if args.asn and args.domain is not None:
@@ -557,7 +550,3 @@ if __name__ == '__main__':
     
     except dns.exception.SyntaxError:
         print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
-
-
-
-    
