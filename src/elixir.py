@@ -8,9 +8,13 @@ import nmap
 import requests
 import pyasn
 from asn_build.build_asn_db import buildASNdb
+from core.subdomain import onlineSubdomains, bruteForceSubdomains
+from core.dnsfunc import dnsEnumeration
 import re
-import time
 import concurrent.futures
+
+#---------------------------------------------------------# 
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -29,33 +33,6 @@ class bcolors:
 def list_to_string(string):
     temp = ''.join(string)
     return temp    
-
-def findAllDnsRecords(userInput):
-    dnsRecordTypes = ['A', 'AAAA', 'NS', 'CNAME', 'TXT', 'SOA', 'PTR', 'MX', 'SRV']
-    server = []
-    serverOutput = []
-
-    print(f'\n{bcolors.WARNING}[+] Finding all DNS Records...{bcolors.ENDC}')
-    try:
-        for dnsRecords in dnsRecordTypes:
-            try:
-                resolve = dns.resolver.resolve(userInput, dnsRecords)
-                for answers in resolve:
-                    server.append(f'{bcolors.OKGREEN}{bcolors.BOLD}{dnsRecords}: ' + answers.to_text() + bcolors.ENDC + '\n')
-                    serverOutput.append(f'{dnsRecords}: {answers.to_text()}\n')
-            except dns.resolver.NoAnswer:
-                server.append(f'{bcolors.FAIL}{bcolors.BOLD}{dnsRecords}: Record not existing{bcolors.ENDC}\n')
-    except dns.resolver.NXDOMAIN:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not exist.{bcolors.ENDC}\n')
-    except dns.resolver.NoResolverConfiguration:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
-
-    if outputBool:
-        serverOutput.insert(0, '\n#----------------#\n')
-        serverOutput.extend('#----------------#\n')
-        outputFunction(list_to_string(serverOutput))
-    
-    return(list_to_string(server))
 
 
 def zoneTransfer(userInput):
@@ -88,98 +65,6 @@ def zoneTransfer(userInput):
         outputFunction(list_to_string(hostsOutput))
     
     return(list_to_string(hosts))
-
-
-def findSpecificRecord(userInput, record):
-    response = []
-    responseOutput = []
-    print(f'\n{bcolors.WARNING}[+] Finding {record} Records...{bcolors.ENDC}')
-    
-    try:
-        for recordType in record:
-            try:
-                resolve = dns.resolver.resolve(userInput, recordType)
-                for answers in resolve:
-                    response.append(f'{bcolors.OKGREEN}{bcolors.BOLD}{recordType} Record: {answers.to_text()}{bcolors.ENDC}\n')
-                    responseOutput.append(f'{recordType} Record: {answers.to_text()}\n')
-            except dns.resolver.NoAnswer:
-                response.append(f'{bcolors.FAIL}{bcolors.BOLD}{recordType} Record not existing.{bcolors.ENDC}\n')
-                responseOutput.append(f'{recordType} Record not existing.\n')
-
-    except dns.resolver.NXDOMAIN:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not existing.{bcolors.ENDC}')
-    except dns.rdatatype.UnknownRdatatype:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}Error in your record statement.{bcolors.ENDC}')
-    except dns.resolver.NoResolverConfiguration:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
-    
-    
-    if outputBool:
-        responseOutput.insert(0, '\n#----------------#\n')
-        responseOutput.extend('#----------------#\n')
-        outputFunction(list_to_string(responseOutput))    
-    
-    return(list_to_string(response))
-
-
-def reverseLookup(ipAddress):
-    print(f'\n{bcolors.WARNING}[+] DNS Reverse Lookup...{bcolors.ENDC}')
-    dnsNames = []
-    dnsNamesOutput = []
-    
-    try:
-        for ips in ipAddress:
-            names = dns.reversename.from_address(ips)
-            dnsNames.append(f'{bcolors.OKGREEN}{bcolors.BOLD}Reverse Lookup: {str(dns.resolver.resolve(names, "PTR")[0])}{bcolors.ENDC}\n')
-            dnsNamesOutput.append(f'Reverse DNS Lookup: {str(dns.resolver.resolve(names, "PTR")[0])}\n')
-    except dns.resolver.NXDOMAIN:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}{names} does not existing.{bcolors.ENDC}')
-        dnsNamesOutput.append(f'{names} does not existing.\n')
-    
-    
-    if outputBool:
-        dnsNamesOutput.insert(0, '\n#----------------#\n')
-        dnsNamesOutput.extend('#----------------#\n')
-        outputFunction(list_to_string(dnsNamesOutput))    
-    
-    return(list_to_string(dnsNames))
-
-
-def subdomainEnumeration(targetDomain):
-    print(f'\n{bcolors.WARNING}[+] Subdomain Enumeration started...{bcolors.ENDC}')
-    list = []
-    newList = []
-    listOutput = []
-
-    with open(f'{os.getcwd()}/../lists/subdomains.txt', 'r') as file:
-        name = file.read()
-        subDomains = name.splitlines()
-
-    def enumeration(subdomains):
-        try:
-            ipValue = dns.resolver.resolve(f'{subdomains.lower()}.{targetDomain}', 'A')
-            if ipValue:
-                list.append(f'{subdomains.lower()}.{targetDomain}')
-                for x in list:
-                    if x not in newList: #We check for duplicates
-                        newList.append(x)
-                        print(f'{bcolors.OKGREEN}{bcolors.BOLD}https://{subdomains.lower()}.{targetDomain}{bcolors.ENDC}')
-                        #time.sleep(.01)
-                    else:
-                        pass
-        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.name.EmptyLabel):
-            pass
-        except KeyboardInterrupt:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
-            executor.shutdown()
-
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(enumeration, subDomains)
-
-    if outputBool:   
-        listOutput.insert(0, '\n#----------------#\n')
-        listOutput.extend('#----------------#\n')
-        outputFunction(list_to_string(newList))
 
 
 def mapDnsRecords(userInput, depth=0):
@@ -350,11 +235,11 @@ def reverseAsnLookup(asn):
 def outputFunction(function):
     if os.path.exists('results.txt'):
         f = open('results.txt', 'a')
-        f.write(function)
+        f.write('\n#----------------#\n' + function + '#----------------#\n')
         f.close()
     else:
         f = open('results.txt', 'w+')
-        f.write(function)
+        f.write('\n#----------------#\n' + function + '#----------------#\n')
         f.close()
 
 
@@ -391,6 +276,7 @@ if __name__ == '__main__':
     #----------------- Argument Parsing -----------------#  
     
     parser = ArgumentParser()
+    
     parser.add_argument('-v', '--version', action='version', version='V0.3-alpha')
     parser.add_argument('-d', '--domain', help='Target Domain to search for.')
     parser.add_argument('-a', '--all', help='Find all DNS Records.', action='store_true')
@@ -400,10 +286,12 @@ if __name__ == '__main__':
     parser.add_argument('-rasn', '--rasn', help='Reverse ASN Lookup. Shows you the BGP prefixes using an ASN. Requires the ASN Database first.', nargs='+')
     parser.add_argument('-z', '--zone-transfer', help='Attempts a zone transfer attack.', action='store_true')
     parser.add_argument('-i', '--ip-address', help='Reverse DNS Lookup. You can also put multiple IP addresses.', nargs='+')
-    parser.add_argument('-sd', '--subdomains', help='Basic subdomain enumeration.', action='store_true')
+    parser.add_argument('-sd', '--subdomains', help='Subdomain brute force using a provided Wordlist. Use this only if you cannot use the "-sdo" argument.', action='store_true')
+    parser.add_argument('-sdo', '--subdomains-online', help='Subdomain enumeration which uses free online services. Works very fast.', action='store_true')
     parser.add_argument('-m', '--map', help='Attack surface mapping.', action='store_true')
     parser.add_argument('-s', '--scanning', help='NMAP integration for port scanning & service detection. Works from port 15 up to 450. It needs NMAP to be installed on your system.', action='store_true')
     parser.add_argument('-o', '--output', help='Save results in current directory.', action='store_true')
+
     parser.epilog = 'Example: python3 dns.py -d root.security -r TXT A AAAA -z'
 
     args = parser.parse_args()
@@ -415,25 +303,37 @@ if __name__ == '__main__':
         if args.domain is not None:
             pass
 
+
         if args.output:         #New output Argument. This will be improved over time and it is currently in testing phase.
                outputBool = True       
         
+
         if args.domain is not None and args.all:
             if domainSanitazation.search(args.domain):
-                print(findAllDnsRecords(args.domain))
+                print(f'\n{bcolors.WARNING}[+] Finding all DNS Records...{bcolors.ENDC}')
+                if outputBool:
+                    outputFunction(list_to_string(dnsEnumeration.findAllDnsRecords(args.domain)))
+                else:
+                    dnsEnumeration.findAllDnsRecords(args.domain)             
             else:
                 print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
         elif args.domain is None and args.all:
             parser.error('-d / --domain is required.')
         
+
         if args.domain is not None and args.record is not None:
             if domainSanitazation.search(args.domain):
-                print(findSpecificRecord(args.domain, args.record))
+                print(f'\n{bcolors.WARNING}[+] Finding {" ".join(args.record)} Records...{bcolors.ENDC}')
+                if outputBool:
+                    outputFunction(list_to_string(dnsEnumeration.findSpecificRecord(args.domain, args.record)))
+                else:
+                    dnsEnumeration.findSpecificRecord(args.domain, args.record)
             else:
                 print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
         elif args.domain is None and args.record is not None:
             parser.error('-d / --domain is required.')
         
+
         if args.zone_transfer and args.domain is not None:
             if domainSanitazation.search(args.domain):
                 print(zoneTransfer(args.domain))
@@ -442,22 +342,22 @@ if __name__ == '__main__':
         elif args.zone_transfer and args.domain is None:
             parser.error('-d / --domain is required.')
 
-        #----------------- Function with Process -----------------#
+
+        #----------------- Function with Threads -----------------#
         
         if args.subdomains and args.domain is not None:
             if domainSanitazation.search(args.domain):
                 try:
-                    #start = time.perf_counter()
-                    subdomainEnumeration(args.domain)
-                    #stop = time.perf_counter()
-                    #print(f'Task completed in {round(stop - start, 2)} seconds.')
-       
+                    if outputBool:
+                        outputFunction(list_to_string(bruteForceSubdomains.subdomainEnumeration(args.domain)))
+
+                    else:
+                        bruteForceSubdomains.subdomainEnumeration(args.domain)
+
                 except KeyboardInterrupt:
                     print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
-
                 except dns.resolver.NoNameservers:
-                    pass
-                
+                    pass 
                 except dns.resolver.NoResolverConfiguration:
                     print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
             
@@ -466,6 +366,22 @@ if __name__ == '__main__':
         
         elif args.subdomains and args.domain is None:
             parser.error('-d / --domain is required.') 
+
+        #----------------- Function with Threads -----------------#
+
+        if args.subdomains_online and args.domain is not None:
+            print(f'\n{bcolors.WARNING}[+] Subdomain enumeration started for {args.domain}...{bcolors.ENDC}')
+            try:
+                if outputBool: 
+                    outputFunction(list_to_string(onlineSubdomains.main(args.domain)))
+                else:
+                    onlineSubdomains.main(args.domain)
+
+            except KeyboardInterrupt:
+                print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+        
+        elif args.subdomains_online and args.domain is None:
+            parser.error('-d / --domain is required.')
 
         #---------------------------------------------------------# 
 
@@ -524,7 +440,11 @@ if __name__ == '__main__':
         #----------------- Arguments where DOMAIN is NOT requried -----------------#
 
         if args.ip_address and args.domain is None:
-            print(reverseLookup(args.ip_address))
+            print(f'\n{bcolors.WARNING}[+] DNS Reverse Lookup...{bcolors.ENDC}')
+            if outputBool:
+                outputFunction(list_to_string(dnsEnumeration.reverseLookup(args.ip_address)))
+            else:
+                dnsEnumeration.reverseLookup(args.ip_address)
 
         if args.rasn:
             if os.path.exists('../lists/asn_db.txt'): 
