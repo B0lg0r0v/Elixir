@@ -28,7 +28,7 @@ python3 elixir.py -h
 ```
 
 <p align="center">
-  <img width="1822" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/f79ce6dd-004b-4887-bef9-f4d439fad215">
+  <img width="2103" alt="grafik" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/f9444770-10bb-4856-8bd2-f76cffb08933">
 </p>
 <br>
 The "-d" argument is required for most of Elixir's functions.<br><br>Example of usage:<br><br>
@@ -79,6 +79,8 @@ python3 elixir.py -asn-db
 - [x] Create an ASN database function in order to always have the latest ASNs.
 - [x] Create an output function.
 - [x] Optimize the subdomain enumeration function.
+- [ ] Add an argument to give a list of domains instead of just one domain.
+- [ ] Add custom resolver functionality.
 - [ ] Enhance the NMAP integration with possibility of giving a custom NMAP command as an argument.
 
 ## Notes
