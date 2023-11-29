@@ -62,6 +62,8 @@ NMAP integration:<br><br>
 ## Installation
 
 ```
+git clone https://github.com/B0lg0r0v/Elixir.git
+cd Elixir/src
 pip3 install -r requirements.txt
 ```
 In order to use the scanning functionality, which contains a NMAP integration, you need to have NMAP installed on your system.<br><br>
