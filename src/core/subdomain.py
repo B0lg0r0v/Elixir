@@ -73,7 +73,7 @@ class onlineSubdomains:
 
         duplicates = []
         
-        subdomains = onlineSubdomains.suipEnumeration(f'{domain}') + onlineSubdomains.crtSh(f'{domain}')
+        subdomains = onlineSubdomains.suipEnumeration(domain) + onlineSubdomains.crtSh(domain)
         for subds in subdomains:
             if subds not in duplicates:
                 duplicates.append(subds)
