@@ -18,7 +18,7 @@
 Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attack Surface Mapping tool. It will try to give you a maximum amount of informations out of a given domain name. <br><br>:warning: *This project is under development and changes will be made frequently*.<br> 
 <br>
 <p align="center">
-  <img width="1100" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/a0bf8871-93f1-4bfa-9e0f-d95f29c5fd6a">
+  <img width="1100" alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/34b6b3ae-7aca-448d-ad1e-1a8db52ba328">
 </p>
 
 ## Usage
@@ -28,7 +28,7 @@ python3 elixir.py -h
 ```
 
 <p align="center">
-  <img width="2103" alt="grafik" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/f9444770-10bb-4856-8bd2-f76cffb08933">
+  <img width="2103" alt="grafik" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/8e66ec33-b74d-4568-820e-bea3ff536d21">
 </p>
 <br>
 The "-d" argument is required for most of Elixir's functions.<br><br>Example of usage:<br><br>
@@ -44,6 +44,7 @@ Here's a quick overview of Elixir's features:
   - ASN Mapping incl. BGP Prefix
   - Subdomain Enumeration
   - NMAP Integration for portscanning & service enumeration (from port 15 up to 450)
+  - Auto update functionality
 <br>
 
 *Examples*:
@@ -81,7 +82,7 @@ python3 elixir.py -asn-db
 - [x] Create an ASN database function in order to always have the latest ASNs.
 - [x] Create an output function.
 - [x] Optimize the subdomain enumeration function.
-- [ ] Add an argument to give a list of domains instead of just one domain.
+- [x] Add an argument to give a list of domains instead of just one domain.
 - [ ] Add custom resolver functionality.
 - [ ] Enhance the NMAP integration with possibility of giving a custom NMAP command as an argument.
 
