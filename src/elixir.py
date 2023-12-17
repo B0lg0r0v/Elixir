@@ -502,6 +502,8 @@ if __name__ == '__main__':
                     print(f'{bcolors.WARNING}[+] Updating Elixir...{bcolors.ENDC}')
                     origin = os.getcwd()
                     os.chdir(os.path.dirname(os.path.realpath(__file__)))
+                    os.system('git fetch --all')
+                    os.system('git reset --hard origin/main')
                     os.system('git pull')
                     os.chdir(origin)
                     print(f'{bcolors.OKGREEN}{bcolors.BOLD}Update complete.{bcolors.ENDC}')
