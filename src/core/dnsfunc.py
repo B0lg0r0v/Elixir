@@ -33,7 +33,7 @@ class dnsEnumeration:
                     server.append(f'{bcolors.FAIL}{bcolors.BOLD}{dnsRecords}: Record not existing{bcolors.ENDC}\n')
         except dns.resolver.NXDOMAIN:
             print(f'{bcolors.FAIL}{bcolors.BOLD}{domain} does not exist.{bcolors.ENDC}\n')
-        except dns.resolver.NoResolverConfiguration:
+        except (dns.resolver.NoResolverConfiguration, dns.resolver.LifetimeTimeout):
             print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
 
         print(bcolors.OKGREEN + bcolors.BOLD + ''.join(server) + bcolors.ENDC)

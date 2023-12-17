@@ -49,10 +49,14 @@ class onlineSubdomains:
 
         body = f'-----------------------------{boundary}\n' + 'Content-Disposition: form-data; name="url"\n\n' + f'{domain}\n' + f'-----------------------------{boundary}\n' + 'Content-Disposition: form-data; name="Submit1"\n\n' + 'Submit'
 
-        soup = BeautifulSoup(requests.post(url, headers=headers, data=body).content, 'html.parser')
-        for content in soup.find('pre'):
-            hosts.append(content)
-        
+        try:
+            soup = BeautifulSoup(requests.post(url, headers=headers, data=body).content, 'html.parser')
+            for content in soup.find('pre'):
+                hosts.append(content)
+
+        except TypeError as e:
+            print(f'{bcolors.FAIL}{bcolors.BOLD}Error: {e}{bcolors.ENDC}')
+
         return hosts
 
 
@@ -66,7 +70,7 @@ class onlineSubdomains:
         
         for match in matches:
             hosts.append(match)
-        
+
         return hosts
 
     def main(domain):
@@ -87,11 +91,12 @@ class onlineSubdomains:
 class bruteForceSubdomains:
 
     def subdomainEnumeration(targetDomain):
-        print(f'\n{bcolors.WARNING}[+] Subdomain brute force started...{bcolors.ENDC}')
         list = []
         newList = []
 
-        with open(f'{os.getcwd()}/../lists/subdomains.txt', 'r') as file:
+        scriptDir = os.path.dirname(os.path.realpath(__file__))
+
+        with open(f'{os.path.join(scriptDir, "../../lists/subdomains.txt")}', 'r') as file:
             name = file.read()
             subDomains = name.splitlines()
 
