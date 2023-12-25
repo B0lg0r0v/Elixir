@@ -1,7 +1,17 @@
 # Elixir
-<p align="center">
-  <img src='https://github.com/B0lg0r0v/elixir/assets/115954804/c71ac078-79cb-44be-9390-633d8ae4384c' width='400'>
-</p>
+
+```
+                                                            _________      _     
+                                                           / ____/ (_)  __(_)____
+                                                          / __/ / / / |/_/ / ___/
+                                                         / /___/ / />  </ / /    
+                                                        /_____/_/_/_/|_/_/_/ v0.6    
+                                                                                     
+                                                        
+                                                            Author: B0lg0r0v
+                                                            https://root.security
+```
+
 
 ## Table Of Contents
 
