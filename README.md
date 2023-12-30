@@ -75,7 +75,7 @@ options:
   -up, --update         Update Elixir. This will overwrite all your changes,
                         so be careful.
 
-Example: python3 dns.py -d root.security -r TXT A AAAA -z
+Example: python3 elixir.py -d root.security -r TXT A AAAA -z
 ```
 
 ## Features
