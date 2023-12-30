@@ -1,17 +1,10 @@
 import dns.resolver
 import dns.zone
 import dns.reversename
+from colorama import init as coloramaInit
+from colorama import Fore
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+coloramaInit(autoreset=True)
 
 #----------------- Record Enumeration -----------------#
 
@@ -27,16 +20,16 @@ class dnsEnumeration:
                 try:
                     resolve = dns.resolver.resolve(domain, dnsRecords)
                     for answers in resolve:
-                        server.append(f'{bcolors.OKGREEN}{bcolors.BOLD}{dnsRecords}: ' + answers.to_text() + bcolors.ENDC + '\n')
+                        server.append(f'{Fore.GREEN}{dnsRecords}: ' + answers.to_text() + Fore.RESET + '\n')
                         serverOutput.append(f'{dnsRecords}: {answers.to_text()}\n')
                 except dns.resolver.NoAnswer:
-                    server.append(f'{bcolors.FAIL}{bcolors.BOLD}{dnsRecords}: Record not existing{bcolors.ENDC}\n')
+                    server.append(f'{Fore.RED}{dnsRecords}: Record not existing{Fore.RESET}\n')
         except dns.resolver.NXDOMAIN:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}{domain} does not exist.{bcolors.ENDC}\n')
+            print(f'{Fore.RED}{domain} does not exist.{Fore.RESET}\n')
         except (dns.resolver.NoResolverConfiguration, dns.resolver.LifetimeTimeout):
-            print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+            print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}')
 
-        print(bcolors.OKGREEN + bcolors.BOLD + ''.join(server) + bcolors.ENDC)
+        print(Fore.GREEN + ''.join(server) + Fore.RESET)
         
         return serverOutput
 
@@ -50,21 +43,21 @@ class dnsEnumeration:
                 try:
                     resolve = dns.resolver.resolve(domain, recordType)
                     for answers in resolve:
-                        response.append(f'{bcolors.OKGREEN}{bcolors.BOLD}{recordType} Record: {answers.to_text()}{bcolors.ENDC}\n')
+                        response.append(f'{Fore.GREEN}{recordType} Record: {answers.to_text()}{Fore.RESET}\n')
                         responseOutput.append(f'{recordType} Record: {answers.to_text()}\n')
                 except dns.resolver.NoAnswer:
-                    response.append(f'{bcolors.FAIL}{bcolors.BOLD}{recordType} Record not existing.{bcolors.ENDC}\n')
+                    response.append(f'{Fore.RED}{recordType} Record not existing.{Fore.RESET}\n')
                     responseOutput.append(f'{recordType} Record not existing.\n')
 
         except dns.resolver.NXDOMAIN:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}{domain} does not existing.{bcolors.ENDC}')
+            print(f'{Fore.RED}{domain} does not existing.{Fore.RESET}')
         except dns.rdatatype.UnknownRdatatype:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}Error in your record statement.{bcolors.ENDC}')
+            print(f'{Fore.RED}Error in your record statement.{Fore.RESET}')
         except dns.resolver.NoResolverConfiguration:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+            print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}')
 
         
-        print(bcolors.OKGREEN + bcolors.BOLD + ''.join(response) + bcolors.ENDC)
+        print(Fore.GREEN + ''.join(response) + Fore.RESET)
         
         return responseOutput
 
@@ -76,10 +69,10 @@ class dnsEnumeration:
         try:
             for ips in ipAddress:
                 names = dns.reversename.from_address(ips)
-                dnsNames.append(f'{bcolors.OKGREEN}{bcolors.BOLD}Reverse Lookup: {str(dns.resolver.resolve(names, "PTR")[0])}{bcolors.ENDC}\n')
+                dnsNames.append(f'{Fore.GREEN}Reverse Lookup: {str(dns.resolver.resolve(names, "PTR")[0])}{Fore.RESET}\n')
                 dnsNamesOutput.append(f'Reverse DNS Lookup: {str(dns.resolver.resolve(names, "PTR")[0])}\n')
         except dns.resolver.NXDOMAIN:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}{names} does not existing.{bcolors.ENDC}')
+            print(f'{Fore.RED}{names} does not existing.{Fore.RESET}')
             dnsNamesOutput.append(f'{names} does not existing.\n')
 
         

@@ -7,18 +7,10 @@ import dns.zone
 import dns.reversename
 import os
 import concurrent.futures
+from colorama import init as coloramaInit
+from colorama import Fore
 
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+coloramaInit(autoreset=True)
 
 #----------------- "Online" Subdomain Enumeration -----------------#
 
@@ -55,7 +47,7 @@ class onlineSubdomains:
                 hosts.append(content)
 
         except TypeError as e:
-            print(f'{bcolors.FAIL}{bcolors.BOLD}Error: {e}{bcolors.ENDC}')
+            print(f'{Fore.RED}Error: {e}{Fore.RESET}')
 
         return hosts
 
@@ -81,7 +73,7 @@ class onlineSubdomains:
         for subds in subdomains:
             if subds not in duplicates:
                 duplicates.append(subds)
-                print(bcolors.OKGREEN + bcolors.BOLD + subds + bcolors.ENDC)
+                print(Fore.GREEN + subds + Fore.RESET)
                 return subds
 
 #---------------------------------------------------------# 
@@ -108,14 +100,14 @@ class bruteForceSubdomains:
                     for x in list:
                         if x not in newList: #We check for duplicates
                             newList.append(x)
-                            print(f'{bcolors.OKGREEN}{bcolors.BOLD}{subdomains.lower()}.{targetDomain}{bcolors.ENDC}')
+                            print(f'{Fore.GREEN}{subdomains.lower()}.{targetDomain}{Fore.RESET}')
 
                         else:
                             pass
             except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.name.EmptyLabel):
                 pass
             except KeyboardInterrupt:
-                print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+                print(f'{Fore.RED}\nEnumeration canceled.{Fore.RESET}')
                 executor.shutdown()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:

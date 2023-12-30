@@ -14,20 +14,8 @@ import re
 import concurrent.futures
 import json
 import time
-
-#---------------------------------------------------------# 
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
+from colorama import init as coloramaInit
+from colorama import Fore
 
 #----------------- Functions of Elixir -----------------#
 
@@ -47,16 +35,16 @@ def zoneTransfer(userInput):
                 try:
                     zone = dns.zone.from_xfr(dns.query.xfr(str(ipAnswers, userInput)))
                     for host in zone:
-                        hosts.append(f'\n{bcolors.OKGREEN}{bcolors.BOLD}Found Host for zone transfer: {host}{bcolors.ENDC}')
+                        hosts.append(f'\n{Fore.GREEN}Found Host for zone transfer: {host}{Fore.RESET}')
                         hostsOutput.append(host + '\n')
                 except Exception:
-                    hosts.append(f'{bcolors.FAIL}NS {bcolors.BOLD}{nsServer} refused the zone transfer.{bcolors.ENDC}\n')
+                    hosts.append(f'{Fore.RED}NS {nsServer} refused the zone transfer.{Fore.RESET}\n')
                     hostsOutput.append(f'{nsServer} refused the zone transfer.\n')
                     continue
     except dns.resolver.NXDOMAIN:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}{userInput} does not existing.{bcolors.ENDC}')
+        print(f'{Fore.RED}{userInput} does not existing.{Fore.RESET}')
     except dns.resolver.NoResolverConfiguration:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+        print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}')
     
     
     if outputBool:
@@ -69,27 +57,27 @@ def mapDnsRecords(userInput, depth=0):
     dnsRecordTypes = ['A', 'AAAA', 'NS', 'CNAME', 'TXT', 'SOA', 'PTR', 'MX', 'SRV']
     server = []
     indent = '    ' * depth
-    print(f'\n{bcolors.WARNING}[+] Mapping the Attack Surface...{bcolors.ENDC}')
+    print(f'\n{Fore.LIGHTYELLOW_EX}[+] Mapping the Attack Surface...{Fore.RESET}')
 
     if os.path.exists(asnDbPath):
         asndb = pyasn.pyasn(asnDbPath)
     else:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}ASN DB not existing. Check "-h" argument.{bcolors.ENDC}')
+        print(f'{Fore.RED}ASN DB not existing. Check "-h" argument.{Fore.RESET}')
 
     try:
         for dnsRecords in dnsRecordTypes:
             try:
                 resolve = dns.resolver.resolve(userInput, dnsRecords)
                 for answers in resolve:
-                    server.append(f'{bcolors.HEADER}{indent}| {bcolors.OKCYAN}{bcolors.BOLD} {dnsRecords} ----->  ' + answers.to_text() + f'{bcolors.ENDC}')
+                    server.append(f'{Fore.LIGHTMAGENTA_EX}{indent}| {Fore.LIGHTCYAN_EX} {dnsRecords} ----->  ' + answers.to_text() + f'{Fore.RESET}')
                     if dnsRecords == 'A':
-                        server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD} ----->  ' + f'{geolocation(answers.to_text())}{bcolors.OKBLUE} ----->  {bcolors.UNDERLINE}Origin ASN:{bcolors.ENDC} {bcolors.BOLD}{bcolors.OKBLUE}{asndb.lookup(answers.to_text())[0]}{bcolors.ENDC}, {bcolors.BOLD}{bcolors.OKBLUE}{bcolors.UNDERLINE}BGP Prefix:{bcolors.ENDC} {bcolors.BOLD}{bcolors.OKBLUE}{asndb.lookup(answers.to_text())[1]} {bcolors.ENDC}')            
+                        server.extend(f'{Fore.GREEN} ----->  ' + f'{geolocation(answers.to_text())}{Fore.BLUE} ----->  Origin ASN:{Fore.RESET} {Fore.BLUE}{asndb.lookup(answers.to_text())[0]}{Fore.RESET}, {Fore.BLUE}BGP Prefix:{Fore.RESET} {Fore.BLUE}{asndb.lookup(answers.to_text())[1]} {Fore.RESET}')            
                     if dnsRecords == 'MX':
                         mx = answers.to_text().split(" ")[1]
                         mxIP = dns.resolver.resolve(mx, 'A')
-                        server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD} ----->  {bcolors.ENDC}')
+                        server.extend(f'{Fore.GREEN} ----->  {Fore.RESET}')
                         for u in mxIP:
-                            server.extend(f'{bcolors.OKGREEN}{bcolors.BOLD}{u.to_text()} | {bcolors.ENDC}')
+                            server.extend(f'{Fore.GREEN}{u.to_text()} | {Fore.RESET}')
                     server.append('\n') 
                 else:
                     pass
@@ -99,12 +87,12 @@ def mapDnsRecords(userInput, depth=0):
     except dns.resolver.NXDOMAIN:
         pass
     except (dns.resolver.NoResolverConfiguration, dns.resolver.LifetimeTimeout):
-        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+        print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}')
     except KeyboardInterrupt:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}\nMapping interrupted.{bcolors.ENDC}')
+        print(f'{Fore.RED}\nMapping interrupted.{Fore.RESET}')
     
     #print("\n" + "-"*50 + "\n")
-    print(f'{bcolors.HEADER}{indent}┌── {userInput}{bcolors.ENDC}') 
+    print(f'{Fore.LIGHTMAGENTA_EX}{indent}┌── {userInput}{Fore.RESET}') 
     print(list_to_string(server))
     #return("\n" + "-"*50 + "\n")
     return ""
@@ -131,7 +119,7 @@ def geolocation(ipAddress):
             print(f'Error: {data.get("message")}')
     
     else:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+        print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
 
 
 def serviceDetection(domain):
@@ -146,7 +134,7 @@ def serviceDetection(domain):
 
     try:
         for ip in temp:
-            print(f'\n {bcolors.BOLD}↳{bcolors.ENDC}{indent}{bcolors.OKBLUE}{bcolors.BOLD}[+] Scanning ports and services for IP {bcolors.UNDERLINE}{ip}{bcolors.ENDC}{bcolors.OKBLUE}...{bcolors.ENDC}')
+            print(f'\n ↳{Fore.RESET}{indent}{Fore.BLUE}[+] Scanning ports and services for IP {ip}{Fore.RESET}{Fore.BLUE}...{Fore.RESET}')
             serviceOutput.append(f'Scanning ports and services for {ip}\n')
             for x in range(15, 450+1):
                 res = scanner.scan(ip, str(x))
@@ -155,31 +143,31 @@ def serviceDetection(domain):
                 if state == 'open':
                     results = scanner.scan(ip, arguments=f'-sV -sC -T4 -p {x}')
                     service = results['scan'][ip]['tcp'][x]['product']      
-                    print(f'{indent}  {bcolors.OKGREEN}{bcolors.BOLD}Port {x} is open and is running "{service}".{bcolors.ENDC}')
+                    print(f'{indent}  {Fore.GREEN}Port {x} is open and is running "{service}".{Fore.RESET}')
                     serviceOutput.append(f'{indent}  Port {x} is open and is running "{service}".\n')
 
     except KeyboardInterrupt:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+        print(f'{Fore.RED}\nEnumeration canceled.{Fore.RESET}')
     except KeyError:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}\nError scanning the Host.{bcolors.ENDC}')
+        print(f'{Fore.RED}\nError scanning the Host.{Fore.RESET}')
 
     if outputBool:   
         outputFunction(list_to_string(serviceOutput), domain)
 
 
 def initAsnDB():
-    print(f'{bcolors.WARNING}[+] Checking if ASN Database already exists...{bcolors.ENDC}')
+    print(f'{Fore.LIGHTYELLOW_EX}[+] Checking if ASN Database already exists...{Fore.RESET}')
 
     if os.path.exists(asnDbPath):
-        response = input(f'{bcolors.WARNING}{bcolors.BOLD}The ASN Database already exists. Do you want to update it? [y] or [n]: {bcolors.ENDC}')
+        response = input(f'{Fore.LIGHTYELLOW_EX}The ASN Database already exists. Do you want to update it? [y] or [n]: {Fore.RESET}')
         if response == 'y'.lower():
             buildASNdb()
-            print(f'{bcolors.OKGREEN}{bcolors.BOLD}Building Database complete.{bcolors.ENDC}')
+            print(f'{Fore.GREEN}Building Database complete.{Fore.RESET}')
         elif response == 'n'.lower():
-            print(f'{bcolors.WARNING}{bcolors.BOLD}ASN DB build canceled.{bcolors.ENDC}')
+            print(f'{Fore.LIGHTYELLOW_EX}ASN DB build canceled.{Fore.RESET}')
             exit()
     else:
-        print(f'{bcolors.OKGREEN}{bcolors.BOLD}Building Database...{bcolors.ENDC}')
+        print(f'{Fore.GREEN}Building Database...{Fore.RESET}')
         buildASNdb()
 
     return None
@@ -195,22 +183,22 @@ def asnLookup(domain):
             if outputBool:
                 outputFunction(list_to_string(asnOutput), domain)
             
-            return f'{bcolors.OKGREEN}{bcolors.BOLD}Origin AS: {asn[0]}, BGP Prefix {asn[1]}{bcolors.ENDC}\n'
+            return f'{Fore.GREEN}Origin AS: {asn[0]}, BGP Prefix {asn[1]}{Fore.RESET}\n'
     except dns.resolver.NoResolverConfiguration:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+        print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}')
     
     
     return None
 
     
 def reverseAsnLookup(asn):
-    print(f'\n{bcolors.WARNING}[+] Reverse ASN Lookup for {"".join(asn)}...{bcolors.ENDC}')
+    print(f'\n{Fore.LIGHTYELLOW_EX}[+] Reverse ASN Lookup for {"".join(asn)}...{Fore.RESET}')
     output = []
     
     for x in asn:
         response = asndb.get_as_prefixes(x)
         for u in response:
-            print(f'{bcolors.OKGREEN}{bcolors.BOLD}{u}{bcolors.ENDC}')
+            print(f'{Fore.GREEN}{u}{Fore.RESET}')
             output.append(u)
             output.append('\n')
     
@@ -240,7 +228,7 @@ def checkForUpdates():
     try:
         response = requests.get('https://api.github.com/repos/B0lg0r0v/Elixir/releases/latest')
     except requests.exceptions.ConnectionError:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}No internet connection.{bcolors.ENDC}')
+        print(f'{Fore.RED}No internet connection.{Fore.RESET}')
         exit()    
     
     latestRelease = json.loads(response.text)
@@ -254,7 +242,7 @@ def checkForUpdates():
 
         if latestVersion.startswith('v') and CURRENT_VERSION.startswith('v'):
             if latestVersion > CURRENT_VERSION:
-                print(f'{bcolors.UNDERLINE}A new version ({latestVersion}) is available. Update with "-up".{bcolors.ENDC}')
+                print(f'A new version ({latestVersion}) is available. Update with "-up".{Fore.RESET}')
                 return True
             elif latestVersion == CURRENT_VERSION:
                 pass
@@ -319,6 +307,7 @@ if __name__ == '__main__':
     parser.epilog = 'Example: python3 dns.py -d root.security -r TXT A AAAA -z'
 
     args = parser.parse_args()
+    coloramaInit(autoreset=True) 
 
     #checking for updates
     checkForUpdates()
@@ -334,36 +323,36 @@ if __name__ == '__main__':
             
             if args.all:
                 if domainSanitazation.search(args.domain):
-                    print(f'\n{bcolors.WARNING}[+] Finding all DNS Records...{bcolors.ENDC}')
+                    print(f'\n{Fore.LIGHTYELLOW_EX}[+] Finding all DNS Records...{Fore.RESET}')
                     if outputBool:
                         outputFunction(list_to_string(dnsEnumeration.findAllDnsRecords(args.domain)), args.domain)
                     else:
                         dnsEnumeration.findAllDnsRecords(args.domain)             
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
             elif args.domain is None and args.all:
                 parser.error('-d / --domain is required.')
             
 
             if args.record:
                 if domainSanitazation.search(args.domain):
-                    print(f'\n{bcolors.WARNING}[+] Finding {" ".join(args.record)} Records...{bcolors.ENDC}')
+                    print(f'\n{Fore.LIGHTYELLOW_EX}[+] Finding {" ".join(args.record)} Records...{Fore.RESET}')
                     if outputBool:
                         outputFunction(list_to_string(dnsEnumeration.findSpecificRecord(args.domain, args.record)), args.domain)
                     else:
                         dnsEnumeration.findSpecificRecord(args.domain, args.record)
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
             elif args.domain is None and args.record is not None:
                 parser.error('-d / --domain is required.')
             
 
             if args.zone_transfer:
-                print(f'\n{bcolors.WARNING}[+] Trying Zone Transfer...{bcolors.ENDC}')
+                print(f'\n{Fore.LIGHTYELLOW_EX}[+] Trying Zone Transfer...{Fore.RESET}')
                 if domainSanitazation.search(args.domain):
                     print(zoneTransfer(args.domain))
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
             elif args.zone_transfer and args.domain is None:
                 parser.error('-d / --domain is required.')
 
@@ -371,7 +360,7 @@ if __name__ == '__main__':
             #----------------- Function with Threads -----------------#
             
             if args.subdomains:
-                print(f'\n{bcolors.WARNING}[+] Subdomain brute force started...{bcolors.ENDC}')
+                print(f'\n{Fore.LIGHTYELLOW_EX}[+] Subdomain brute force started...{Fore.RESET}')
                 if domainSanitazation.search(args.domain):
                     try:
                         if outputBool:
@@ -381,14 +370,14 @@ if __name__ == '__main__':
                             bruteForceSubdomains.subdomainEnumeration(args.domain)
 
                     except KeyboardInterrupt:
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+                        print(f'{Fore.RED}\nEnumeration canceled.{Fore.RESET}')
                     except dns.resolver.NoNameservers:
                         pass 
                     except dns.resolver.NoResolverConfiguration:
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}')
+                        print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}')
                 
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}') 
+                    print(f'{Fore.RED}Invalid input detected.{Fore.RESET}') 
             
             elif args.subdomains and args.domain is None:
                 parser.error('-d / --domain is required.') 
@@ -396,7 +385,7 @@ if __name__ == '__main__':
             #----------------- Function with Threads -----------------#
 
             if args.subdomains_online:
-                print(f'\n{bcolors.WARNING}[+] Subdomain enumeration started for {args.domain}...{bcolors.ENDC}')
+                print(f'\n{Fore.LIGHTYELLOW_EX}[+] Subdomain enumeration started for {args.domain}...{Fore.RESET}')
                 try:
                     if outputBool: 
                         outputFunction(list_to_string(onlineSubdomains.main(args.domain)), args.domain)
@@ -404,7 +393,7 @@ if __name__ == '__main__':
                         onlineSubdomains.main(args.domain)
 
                 except KeyboardInterrupt:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+                    print(f'{Fore.RED}\nEnumeration canceled.{Fore.RESET}')
             
             elif args.subdomains_online and args.domain is None:
                 parser.error('-d / --domain is required.')
@@ -415,7 +404,7 @@ if __name__ == '__main__':
                 if domainSanitazation.search(args.domain):
                     print(mapDnsRecords(args.domain))
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
             elif args.map and args.domain is None:
                 parser.error('-d / --domain is required.')
 
@@ -423,7 +412,7 @@ if __name__ == '__main__':
             #----------------- Function with Threads -----------------#
 
             if args.scanning:
-                print(f'\n{bcolors.WARNING}[+] Scanning ports and services...{bcolors.ENDC}')
+                print(f'\n{Fore.LIGHTYELLOW_EX}[+] Scanning ports and services...{Fore.RESET}')
                 if domainSanitazation.search(args.domain):
                     try:
                         #start = time.perf_counter()
@@ -432,34 +421,34 @@ if __name__ == '__main__':
                         #stop = time.perf_counter()
                         #print(f'Task completed in {round(stop - start, 2)} seconds.')
                     except dns.resolver.NoResolverConfiguration:
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}No NS found or no internet connection.{bcolors.ENDC}') 
+                        print(f'{Fore.RED}No NS found or no internet connection.{Fore.RESET}') 
                     
                     except KeyboardInterrupt:
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}\nScanning canceled.{bcolors.ENDC}')
+                        print(f'{Fore.RED}\nScanning canceled.{Fore.RESET}')
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
             elif args.scanning and args.domain is None:
                 parser.error('-d / --domain is required.')
 
             #---------------------------------------------------------#
 
             if args.asn:
-                print(f'\n{bcolors.WARNING}[+] ASN Lookup...{bcolors.ENDC}')
+                print(f'\n{Fore.LIGHTYELLOW_EX}[+] ASN Lookup...{Fore.RESET}')
                 if os.path.exists(asnDbPath): 
                     asndb = pyasn.pyasn(asnDbPath) #Initializing the Database for ASN lookup.
                     if domainSanitazation.search(args.domain):
                         print(asnLookup(args.domain))
                     else:
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+                        print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
                 else:
-                    print(f'{bcolors.WARNING}{bcolors.BOLD}Database could not be initialized.{bcolors.ENDC}')
-                    asnAnswer = input(f'{bcolors.WARNING}{bcolors.BOLD}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {bcolors.ENDC}')
+                    print(f'{Fore.LIGHTYELLOW_EX}Database could not be initialized.{Fore.RESET}')
+                    asnAnswer = input(f'{Fore.LIGHTYELLOW_EX}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {Fore.RESET}')
                     if asnAnswer == 'y'.lower():
                         initAsnDB()
                         asndb = pyasn.pyasn(asnDbPath) #Initializing the Database for ASN lookup.
                         print(asnLookup(args.domain))
                     elif asnAnswer == 'n'.lower():
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}Canceled.{bcolors.ENDC}')
+                        print(f'{Fore.RED}Canceled.{Fore.RESET}')
                         exit()
             elif args.asn and args.domain is None:
                 parser.error('-d / --domain is required.')
@@ -468,7 +457,7 @@ if __name__ == '__main__':
         #----------------- Arguments where DOMAIN or LIST is NOT requried -----------------#
 
         if args.ip_address and args.domain is None:
-            print(f'\n{bcolors.WARNING}[+] DNS Reverse Lookup...{bcolors.ENDC}')
+            print(f'\n{Fore.LIGHTYELLOW_EX}[+] DNS Reverse Lookup...{Fore.RESET}')
             if outputBool:
                 outputFunction(list_to_string(dnsEnumeration.reverseLookup(args.ip_address)), ''.join(args.ip_address))
             else:
@@ -479,14 +468,14 @@ if __name__ == '__main__':
                 asndb = pyasn.pyasn(asnDbPath) #Initializing the Database for rASN lookup.
                 print(reverseAsnLookup(args.rasn))
             else:
-                print(f'{bcolors.WARNING}{bcolors.BOLD}Database could not be initialized.{bcolors.ENDC}')
-                rasnAnswer = input(f'{bcolors.WARNING}{bcolors.BOLD}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {bcolors.ENDC}')
+                print(f'{Fore.LIGHTYELLOW_EX}Database could not be initialized.{Fore.RESET}')
+                rasnAnswer = input(f'{Fore.LIGHTYELLOW_EX}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {Fore.RESET}')
                 if rasnAnswer == 'y'.lower():
                     initAsnDB()
                     asndb = pyasn.pyasn(asnDbPath) #Initializing the Database for rASN lookup.
                     print(reverseAsnLookup(args.rasn))
                 elif rasnAnswer == 'n'.lower():
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Canceled.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Canceled.{Fore.RESET}')
                     exit()
 
         if args.asn_build:
@@ -494,26 +483,26 @@ if __name__ == '__main__':
 
         
         if args.update:
-            print(f'{bcolors.WARNING}[+] Checking for updates...{bcolors.ENDC}')
+            print(f'{Fore.LIGHTYELLOW_EX}[+] Checking for updates...{Fore.RESET}')
             
             if checkForUpdates(): # If CheckForUpdates returns True, then there is a new version available.
                 choice = input(f'Are you sure you want to update? This will overwrite all your changes. [y] or [n]: ')
                 if choice == 'y'.lower():
-                    print(f'{bcolors.WARNING}[+] Updating Elixir...{bcolors.ENDC}')
+                    print(f'{Fore.LIGHTYELLOW_EX}[+] Updating Elixir...{Fore.RESET}')
                     origin = os.getcwd()
                     os.chdir(os.path.dirname(os.path.realpath(__file__)))
                     os.system('git fetch --all')
                     os.system('git reset --hard origin/main')
                     os.system('git pull')
                     os.chdir(origin)
-                    print(f'{bcolors.OKGREEN}{bcolors.BOLD}Update complete.{bcolors.ENDC}')
+                    print(f'{Fore.GREEN}Update complete.{Fore.RESET}')
                 elif choice == 'n'.lower():
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Canceled.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Canceled.{Fore.RESET}')
                     exit()
                 else:
-                    print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input.{bcolors.ENDC}')
+                    print(f'{Fore.RED}Invalid input.{Fore.RESET}')
             else:
-                print(f'{bcolors.OKGREEN}{bcolors.BOLD}Elixir is up to date.{bcolors.ENDC}')
+                print(f'{Fore.GREEN}Elixir is up to date.{Fore.RESET}')
        
        #----------------- Arguments where LIST is requried -----------------#
             
@@ -523,7 +512,7 @@ if __name__ == '__main__':
                 with open(args.list[0], 'r') as f:
                     for line in f:
                         if line.strip():
-                            print(f'\n{bcolors.WARNING}[+] Finding all DNS Record for {line.strip()}...{bcolors.ENDC}')
+                            print(f'\n{Fore.LIGHTYELLOW_EX}[+] Finding all DNS Record for {line.strip()}...{Fore.RESET}')
                             if outputBool:
                                 outputFunction(list_to_string(dnsEnumeration.findAllDnsRecords(line.strip())), str(line.strip()))
                             else:
@@ -535,7 +524,7 @@ if __name__ == '__main__':
                 with open(args.list[0], 'r') as f:
                     for line in f:
                         if line.strip():
-                            print(f'\n{bcolors.WARNING}[+] Finding {" ".join(args.record)} Records for {line.strip()}...{bcolors.ENDC}')
+                            print(f'\n{Fore.LIGHTYELLOW_EX}[+] Finding {" ".join(args.record)} Records for {line.strip()}...{Fore.RESET}')
                             if outputBool:
                                 outputFunction(list_to_string(dnsEnumeration.findSpecificRecord(line.strip(), args.record)), str(line.strip()))
                             else:
@@ -547,7 +536,7 @@ if __name__ == '__main__':
                 with open(args.list[0], 'r') as f:
                     for line in f:
                         if line.strip():
-                            print(f'\n{bcolors.WARNING}[+] Zone Transfer for {line.strip()}...{bcolors.ENDC}')
+                            print(f'\n{Fore.LIGHTYELLOW_EX}[+] Zone Transfer for {line.strip()}...{Fore.RESET}')
                             print(zoneTransfer(line.strip()))
                         else:
                             pass
@@ -564,7 +553,7 @@ if __name__ == '__main__':
                 with open(args.list[0], 'r') as f:
                     for line in f:
                         if line.strip():
-                            print(f'\n{bcolors.WARNING}[+] Scanning ports and services for {line.strip()}...{bcolors.ENDC}')
+                            print(f'\n{Fore.LIGHTYELLOW_EX}[+] Scanning ports and services for {line.strip()}...{Fore.RESET}')
                             serviceDetection(line.strip())
                         else:
                             pass
@@ -575,25 +564,25 @@ if __name__ == '__main__':
                     with open(args.list[0], 'r') as f:
                         for line in f:
                             if line.strip():
-                                print(f'\n{bcolors.WARNING}[+] ASN Lookup for {line.strip()}...{bcolors.ENDC}')
+                                print(f'\n{Fore.LIGHTYELLOW_EX}[+] ASN Lookup for {line.strip()}...{Fore.RESET}')
                                 print(asnLookup(line.strip()))
                             else:
                                 pass
                 else:
-                    print(f'{bcolors.WARNING}{bcolors.BOLD}Database could not be initialized.{bcolors.ENDC}')
-                    asnAnswer = input(f'{bcolors.WARNING}{bcolors.BOLD}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {bcolors.ENDC}')
+                    print(f'{Fore.LIGHTYELLOW_EX}Database could not be initialized.{Fore.RESET}')
+                    asnAnswer = input(f'{Fore.LIGHTYELLOW_EX}ASN Database seems to not exist. Do you want to build it? [y] or [n]: {Fore.RESET}')
                     if asnAnswer == 'y'.lower():
                         initAsnDB()
                         asndb = pyasn.pyasn(asnDbPath)
                         with open(args.list[0], 'r') as f:
                             for line in f:
                                 if line.strip():
-                                    print(f'\n{bcolors.WARNING}[+] ASN Lookup for {line.strip()}...{bcolors.ENDC}')
+                                    print(f'\n{Fore.LIGHTYELLOW_EX}[+] ASN Lookup for {line.strip()}...{Fore.RESET}')
                                     print(asnLookup(line.strip()))
                                 else:
                                     pass
                     elif asnAnswer == 'n'.lower():
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}Canceled.{bcolors.ENDC}')
+                        print(f'{Fore.RED}Canceled.{Fore.RESET}')
                         exit()
                     
             
@@ -601,7 +590,7 @@ if __name__ == '__main__':
                 with open(args.list[0], 'r') as f:
                     for line in f:
                         if line.strip():
-                            print(f'\n{bcolors.WARNING}[+] Subdomain enumeration started for {line.strip()}...{bcolors.ENDC}')
+                            print(f'\n{Fore.LIGHTYELLOW_EX}[+] Subdomain enumeration started for {line.strip()}...{Fore.RESET}')
                             if outputBool:
                                 outputFunction(list_to_string(bruteForceSubdomains.subdomainEnumeration(line.strip())), str(line.strip()))
                             else:
@@ -614,7 +603,7 @@ if __name__ == '__main__':
                     try:
                         for line in f:
                             if line.strip():
-                                print(f'\n{bcolors.WARNING}[+] Subdomain enumeration started for {line.strip()}...{bcolors.ENDC}')
+                                print(f'\n{Fore.LIGHTYELLOW_EX}[+] Subdomain enumeration started for {line.strip()}...{Fore.RESET}')
                                 if outputBool:
                                     outputFunction(list_to_string(onlineSubdomains.main(line.strip())), str(line.strip()))
                                     time.sleep(5)
@@ -624,10 +613,10 @@ if __name__ == '__main__':
                             else:
                                 pass
                     except KeyboardInterrupt:
-                        print(f'{bcolors.FAIL}{bcolors.BOLD}\nEnumeration canceled.{bcolors.ENDC}')
+                        print(f'{Fore.RED}\nEnumeration canceled.{Fore.RESET}')
 
     except ValueError:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}Please enter a valid value.{bcolors.ENDC}')
+        print(f'{Fore.RED}Please enter a valid value.{Fore.RESET}')
     
     except dns.exception.SyntaxError:
-        print(f'{bcolors.FAIL}{bcolors.BOLD}Invalid input detected.{bcolors.ENDC}')
+        print(f'{Fore.RED}Invalid input detected.{Fore.RESET}')
