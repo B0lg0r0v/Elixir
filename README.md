@@ -12,8 +12,6 @@
     Author: B0lg0r0v
     https://root.security
 
-
-
 </div>
 
 ## Table Of Contents
