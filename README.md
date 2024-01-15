@@ -1,7 +1,6 @@
 # Elixir
 
 <div align=center>
-  <pre>
     
           _________      _     
          / ____/ (_)  __(_)____
@@ -11,7 +10,7 @@
                                      
           Author: B0lg0r0v
           https://root.security
-  </pre>
+  
 </div>
 
 
