@@ -1,6 +1,6 @@
 # Elixir
 
-<div align=center>
+<div align=right>
     
           _________      _     
          / ____/ (_)  __(_)____
