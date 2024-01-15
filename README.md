@@ -2,7 +2,8 @@
 
 <div align=center>
   <pre>
-    Test
+    Author: B0lg0r0v
+    https://root.security
   </pre>
 </div>
 
