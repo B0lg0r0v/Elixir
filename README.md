@@ -2,9 +2,7 @@
 
 
 <div align=center>
-    
-      
-                                     
+              
           Author: B0lg0r0v
           https://root.security
   
