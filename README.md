@@ -9,7 +9,7 @@
                                         /___/_/_//_\_\/_/_/   
                                             
                                        Author: B0lg0r0v
-                                       https://root.security
+                                       https://arthurminasyan.com
 
 </div>
 
