@@ -3,4 +3,4 @@ colorama==0.4.4
 dnspython==2.6.1
 pyasn==1.6.2
 python_nmap==0.7.1
-Requests==2.31.0
+Requests==2.32.0
