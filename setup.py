@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='elixir',
+    name='elixir-dns',
     version='1.0.0',
     description='Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attack Surface Mapping tool.',
     long_description=open('README.md').read(),
@@ -25,7 +25,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'elixir=src.entry:main',
+            'elixir-dns=src.entry:main',
         ],
 
     },

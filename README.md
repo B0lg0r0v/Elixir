@@ -58,11 +58,11 @@ options:
   -m, --map             Attack surface mapping
   -z, --zone-transfer   Attempt a zone transfer.
   -s OPTIONS [OPTIONS ...], --scan OPTIONS [OPTIONS ...]
-                        NMAP integration. Add custom queries like the following: elixir -d [DOMAIN] -s " -T4 -sC -sV". You NEED to put a
+                        NMAP integration. Add custom queries like the following: elixir-dns -d [DOMAIN] -s " -T4 -sC -sV". You NEED to put a
                         whitespace before your first NMAP argument !
   -q, --quiet           Quiet mode. Disables banner.
 
-Example: elixir -d [DOMAIN] -r TXT A AAAA -s "-T4 -sC -sV" -ns 1.1.1.1
+Example: elixir-dns -d [DOMAIN] -r TXT A AAAA -s "-T4 -sC -sV" -ns 1.1.1.1
 ```
 
 ## Features
@@ -83,7 +83,7 @@ Here's a quick overview of Elixir's features:
 In order to grab the latest stable release run:
 
 ```
-pip3 install elixir
+pip3 install elixir-dns
 ```
 
 ### From Source
