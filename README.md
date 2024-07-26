@@ -21,7 +21,6 @@
   * [Features](#features)
   * [Installation](#installation)
   * [To-Do](#to-do)
-  * [Notes](#notes)
   * [Disclaimer](#disclaimer)
 
 ## Description
@@ -35,100 +34,73 @@ Elixir is a fast multi-function DNS Enumeration, Subdomain Enumeration and Attac
 ## Usage
 
 ```
-usage: elixir.py [-h] [-v] [-d DOMAIN] [-l LIST [LIST ...]] [-a]
-                 [-r RECORD [RECORD ...]] [-asn-db] [-asn]
-                 [-rasn RASN [RASN ...]] [-z] [-i IP_ADDRESS [IP_ADDRESS ...]]
-                 [-sd] [-sdo] [-m] [-s] [-o] [-up]
+usage: elixir [-h] [-v] [-d DOMAIN] [-l LIST] [-ns NAMESERVER [NAMESERVER ...]] [-a] [-r RECORDS [RECORDS ...]] [-asn] [-rdns RDNS] [-sd] [-sb] [-m] [-z]
+              [-s OPTIONS [OPTIONS ...]] [-q]
+
+Elixir
 
 options:
   -h, --help            show this help message and exit
-  -v, --version         show program's version number and exit
+  -v, --version         Version of Elixir
   -d DOMAIN, --domain DOMAIN
                         Target Domain to search for.
-  -l LIST [LIST ...], --list LIST [LIST ...]
-                        File with a list of domains to search for.
-  -a, --all             Find all DNS Records.
-  -r RECORD [RECORD ...], --record RECORD [RECORD ...]
-                        Search for a specific DNS Record. You can also search
-                        for multiple records.
-  -asn-db, --asn-build  Downloades and creates a Database of ASNs in order to
-                        use the ASN Lookup function offline.
-  -asn, --asn           Shows you the origin ASN and the BGP prefix of your
-                        target. Requires the ASN Database first.
-  -rasn RASN [RASN ...], --rasn RASN [RASN ...]
-                        Reverse ASN Lookup. Shows you the BGP prefixes using
-                        an ASN. Requires the ASN Database first.
-  -z, --zone-transfer   Attempts a zone transfer attack.
-  -i IP_ADDRESS [IP_ADDRESS ...], --ip-address IP_ADDRESS [IP_ADDRESS ...]
-                        Reverse DNS Lookup. You can also put multiple IP
-                        addresses.
-  -sd, --subdomains     Subdomain brute force using a provided Wordlist. Use
-                        this only if you cannot use the "-sdo" argument.
-  -sdo, --subdomains-online
-                        Subdomain enumeration which uses free online services.
-                        Works very fast.
-  -m, --map             Attack surface mapping.
-  -s, --scanning        NMAP integration for port scanning & service
-                        detection. Works from port 15 up to 450. It needs NMAP
-                        to be installed on your system.
-  -o, --output          Save results in current directory.
-  -up, --update         Update Elixir. This will overwrite all your changes,
-                        so be careful.
+  -l LIST, --list LIST  List of domains to search for.
+  -ns NAMESERVER [NAMESERVER ...], --nameserver NAMESERVER [NAMESERVER ...]
+                        Use a custom DNS resolver. Can be used with various combinations incl. subdomain bruteforce and DNS record enumeration.
+  -a, --all             All DNS records for the domain.
+  -r RECORDS [RECORDS ...], --records RECORDS [RECORDS ...]
+                        Search specific DNS records for the domain.
+  -asn                  ASN information for the domain.
+  -rdns RDNS            Reverse DNS Lookup. Give an IP address.
+  -sd, --subdomain      Subdomains of the domain.
+  -sb, --subdomain-bruteforce
+                        Subdomain bruteforce.
+  -m, --map             Attack surface mapping
+  -z, --zone-transfer   Attempt a zone transfer.
+  -s OPTIONS [OPTIONS ...], --scan OPTIONS [OPTIONS ...]
+                        NMAP integration. Add custom queries like the following: python3 elixir.py -d [DOMAIN] -s " -T4 -sC -sV". You NEED to put a
+                        whitespace before your first NMAP argument !
+  -q, --quiet           Quiet mode. Disables banner.
 
-Example: python3 elixir.py -d root.security -r TXT A AAAA -z
+Example: python3 elixir.py -d [DOMAIN] -r TXT A AAAA -s "-T4 -sC -sV" -ns 1.1.1.1
 ```
 
 ## Features
 Here's a quick overview of Elixir's features:
-  - Attack Surface Mapping
-  - DNS Zone Transfer
-  - ASN Mapping incl. BGP Prefix
-  - Subdomain Enumeration
-  - NMAP Integration for portscanning & service enumeration (from port 15 up to 450)
-  - Auto update functionality
+  - Attack surface mapping
+  - Use custom resolver in conjuction with various arguments
+  - DNS zone transfer
+  - ASN mapping
+  - Subdomain enumeration
+  - NMAP integration
+  - Update functionality
 <br>
-
-*Examples*:
-<br><br>
-Subdomain Enumeration:<br>
-<p align="center">
-  <img alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/88886b66-51f0-4d1d-8ea6-9c0c09289b45">
-</p>
-<br><br>
-
-NMAP integration:<br><br>
-<p align="center">
-  <img alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/45403196-e5d4-4a8d-99a2-c301fb3bbc0a">
-</p>
 
 ## Installation
 
-```
-git clone https://github.com/B0lg0r0v/Elixir.git
-cd Elixir/src
-pip3 install -r requirements.txt
-```
-In order to use the scanning functionality, which contains a NMAP integration, you need to have NMAP installed on your system.<br><br>
-Be careful to build the ASN Database in order to use the ASN functionalities:
+### Quick Start
+
+In order to grab the latest stable release run:
 
 ```
-python3 elixir.py -asn-db
+pip3 install elixir
 ```
-<p align="center">
-  <img alt="image" src="https://github.com/B0lg0r0v/Elixir/assets/115954804/208793f5-996b-4fb5-a66e-ee68c5788ffb">
-</p>
+
+### From Source
+
+If you want to have it from source, you can donwload it from the master branch.
+
+```
+git clone https://github.com/B0lg0r0v/Elixir.git
+cd src
+pip3 install -r requirements.txt
+python3 entry.py -v
+```
 
 ## To-Do
 
-- [x] Create an ASN database function in order to always have the latest ASNs.
-- [x] Create an output function.
-- [x] Optimize the subdomain enumeration function.
-- [x] Add an argument to give a list of domains instead of just one domain.
-- [ ] Add custom resolver functionality.
-- [ ] Enhance the NMAP integration with possibility of giving a custom NMAP command as an argument.
-
-## Notes
-Credits for the Pyasn module and scripts goes to Hadi Asghar (https://hadiasghari.com) and Arman Noroozian (https://anoroozian.nl/).
+- [ ] Add JSON output functionality.
+- [ ] Allow the user to supply it's own wordlist for the subdomain bruteforce function.
 
 ## Disclaimer
 
