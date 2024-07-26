@@ -1,17 +1,14 @@
-# Elixir
-
-<div align=center>
-     
-    
-                                           _______       _    
-                                          / __/ (_)_ __ (_)___
-                                         / _// / /\ \ // / __/
-                                        /___/_/_//_\_\/_/_/   
-                                            
-                                       Author: B0lg0r0v
-                                       https://arthurminasyan.com
-
+<div align="center">
+      <h1>ELIXIR</h1>     
 </div>
+<p align="center">
+     <img src="https://img.shields.io/pypi/pyversions/elixir-dns">
+     <img src="https://img.shields.io/github/v/release/b0lg0r0v/elixir">
+     <img src="https://img.shields.io/github/license/b0lg0r0v/elixir">
+     <img src="https://img.shields.io/twitter/follow/b0lg0r0v">
+</p>
+
+
 
 ## Table Of Contents
 
