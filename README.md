@@ -83,7 +83,7 @@ Here's a quick overview of Elixir's features:
 In order to grab the latest stable release run:
 
 ```
-pip3 install elixir-dns
+pipx install elixir-dns
 ```
 
 ### From Source
