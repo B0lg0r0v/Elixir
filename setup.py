@@ -20,6 +20,9 @@ setup(
         'src',
         'src.core',
     ],
+    package_data={
+        'src': ['list/subdomains.txt'],
+    },
     entry_points={
         'console_scripts': [
             'elixir=src.entry:main',

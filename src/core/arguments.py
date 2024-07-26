@@ -45,13 +45,13 @@ def parse_args():
     
     # NMAP integration
     parser.add_argument('-s', '--scan',
-                        help='NMAP integration. Add custom queries like the following: python3 elixir.py -d [DOMAIN] -s " -T4 -sC -sV". You NEED to put a whitespace before your first NMAP argument !', nargs='+', type=str, metavar=('OPTIONS'))
+                        help='NMAP integration. Add custom queries like the following: elixir.py -d [DOMAIN] -s " -T4 -sC -sV". You NEED to put a whitespace before your first NMAP argument !', nargs='+', type=str, metavar=('OPTIONS'))
     
     # Other arguments
     parser.add_argument('-q', '--quiet',
                         help='Quiet mode. Disables banner.', action='store_true')
     
-    parser.epilog = 'Example: python3 elixir.py -d [DOMAIN] -r TXT A AAAA -s "-T4 -sC -sV" -ns 1.1.1.1' 
+    parser.epilog = 'Example: elixir -d [DOMAIN] -r TXT A AAAA -s "-T4 -sC -sV" -ns 1.1.1.1' 
 
     return parser.parse_args()
     
