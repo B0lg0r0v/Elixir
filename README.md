@@ -1,12 +1,13 @@
 <div align="center">
       <h1>ELIXIR</h1>     
 </div>
-<p align="center">
-     <img src="https://img.shields.io/pypi/pyversions/elixir-dns">
-     <img src="https://img.shields.io/github/v/release/b0lg0r0v/elixir">
-     <img src="https://img.shields.io/github/license/b0lg0r0v/elixir">
-     <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/b0lg0r0v?link=https%3A%2F%2Fx.com%2Fb0lg0r0v">
-</p>
+<div align="center">
+      
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/elixir-dns?style=flat-square)
+![GitHub License](https://img.shields.io/github/license/b0lg0r0v/elixir?style=flat-square)
+![GitHub Release](https://img.shields.io/github/v/release/b0lg0r0v/elixir?style=flat-square)
+[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/b0lg0r0v)](https://x.com/b0lg0r0v)
+</div>
 
 ## Table Of Contents
 
