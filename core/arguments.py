@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 def parse_args():
 
-    CURRENT_VERSION = 'v1.0.0'
+    CURRENT_VERSION = 'v1.1.0'
 
     # Initialize parser
     parser = ArgumentParser(description='Elixir')
