@@ -1,11 +1,12 @@
-from src.core.colors import Color
-from src.core.settings import Threads
+from core.colors import Color
+from core.settings import Threads
 import dns.resolver
 from bs4 import BeautifulSoup
 import requests
 import json
 import re
 import os
+import sys
 
 class SubdomainEnum:
 
@@ -96,7 +97,7 @@ class SubdomainBruteforce:
                             pass
          
             except KeyboardInterrupt:
-                pass
+                sys.exit(0)
                 
             except Exception as e:
                 print(self.colors.red(f'Error: {type(e).__name__}'))
@@ -119,7 +120,7 @@ class SubdomainBruteforce:
                             pass
          
             except KeyboardInterrupt:
-                pass
+                sys.exit(0)
                 
             except Exception as e:
                 print(self.colors.red(f'Error: {type(e).__name__}'))

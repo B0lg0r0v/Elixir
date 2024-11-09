@@ -1,9 +1,11 @@
-from src.core.arguments import parse_args
-from src.core.colors import Color, banner
-from src.core.subdomains import SubdomainEnum, SubdomainBruteforce
-from src.core.dnsfunc import DnsEnum
-from src.core.settings import Update
-from src.core.nmap import Nmap
+# -*- coding: utf-8 -*-
+
+from core.arguments import parse_args
+from core.colors import Color, banner
+from core.subdomains import SubdomainEnum, SubdomainBruteforce
+from core.dnsfunc import DnsEnum
+from core.settings import Update
+from core.nmap import Nmap
 
 def main():
     # Initializing

@@ -1,4 +1,4 @@
-from src.core.colors import Color
+from core.colors import Color
 import dns.resolver
 import dns.reversename
 from bs4 import BeautifulSoup
